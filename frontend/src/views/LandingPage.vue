@@ -1,143 +1,14 @@
-<!-- App.vue – Vue 3 + Vite + Tailwind -->
 <template>
   <div class="app" :class="{ dark: isDark }" @keyup.esc="closeModal">
-    <!-- ========= HEADER ========= -->
-    <header
-      class="sticky top-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-700/50"
-    >
-      <div
-        class="mx-auto flex h-20 max-w-screen-2xl items-center justify-between px-4 sm:px-6 lg:px-8"
-      >
-        <!-- Logo -->
-        <a href="#" class="flex items-center space-x-2">
-          <svg
-            class="h-8 w-8 text-indigo-500"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path
-              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-.01L12 2z"
-            />
-          </svg>
-          <span
-            class="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100"
-          >
-            VueMobile
-          </span>
-        </a>
+    <Header
+      :is-dark="isDark"
+      :cart="cart"
+      v-model:search-query="searchQuery"
+      @toggle-dark="toggleDark"
+      @toggle-cart-sidebar="() => {}"
+    />
 
-        <!-- Search -->
-        <div class="hidden lg:flex flex-1 max-w-md mx-8">
-          <label class="relative w-full">
-            <input
-              v-model.trim="searchQuery"
-              type="search"
-              placeholder="Cari produk, merek, dan lainnya..."
-              class="w-full rounded-full bg-slate-100 dark:bg-slate-800 border-transparent py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-indigo-500"
-            />
-            <svg
-              class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </label>
-        </div>
-
-        <!-- Nav -->
-        <nav class="flex items-center space-x-6">
-          <button
-            @click="toggleDark"
-            class="hidden md:block rounded-full p-2 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700"
-            aria-label="Toggle dark mode"
-          >
-            <svg
-              v-if="!isDark"
-              class="h-5 w-5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
-              />
-            </svg>
-            <svg v-else class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </button>
-
-          <a
-            href="#"
-            class="hidden md:block text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500"
-          >
-            Deals
-          </a>
-
-          <button
-            @click="toggleCartSidebar"
-            class="relative p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-500"
-            aria-label="Open cart"
-          >
-            <svg
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <span
-              v-if="cart.length"
-              class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white"
-            >
-              {{ cart.length }}
-            </span>
-          </button>
-        </nav>
-      </div>
-    </header>
-
-    <!-- ========= HERO ========= -->
-    <section
-      class="relative flex items-center justify-center bg-cover bg-center py-24 sm:py-32 text-center text-white"
-      :style="{
-        backgroundImage: `linear-gradient(rgba(15,23,42,.75),rgba(15,23,42,.75)), url(${heroImg})`,
-      }"
-    >
-      <div class="mx-auto max-w-3xl px-4">
-        <h1
-          class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight"
-        >
-          Teknologi Terbaru di Ujung Jari Anda
-        </h1>
-        <p class="mt-6 text-lg text-slate-200 max-w-xl mx-auto">
-          Jelajahi koleksi smartphone terbaru dari merek-merek ternama dunia.
-          Penawaran terbaik menanti Anda.
-        </p>
-        <a
-          href="#products"
-          class="mt-10 inline-block rounded-full bg-white px-8 py-3 text-sm font-semibold text-slate-900 shadow-lg hover:bg-slate-100 transition-transform transform hover:scale-105"
-        >
-          Belanja Sekarang
-        </a>
-      </div>
-    </section>
+    <Hero :hero-img="heroImg" />
 
     <!-- ========= MAIN ========= -->
     <main
@@ -145,219 +16,21 @@
       class="mx-auto max-w-screen-2xl px-4 py-12 sm:px-6 lg:px-8"
     >
       <div class="lg:flex lg:gap-8">
-        <!-- Filters -->
-        <aside class="lg:w-1/4 mb-8 lg:mb-0">
-          <div
-            class="rounded-2xl bg-white dark:bg-slate-800/80 p-6 shadow-lg ring-1 ring-slate-900/5"
-          >
-            <h2
-              class="text-xl font-bold mb-6 border-b pb-3 dark:border-slate-700"
-            >
-              Filter
-            </h2>
-
-            <!-- Brand -->
-            <div>
-              <h3
-                class="font-semibold mb-3 text-sm text-slate-700 dark:text-slate-300"
-              >
-                Merek
-              </h3>
-              <div class="space-y-2">
-                <label
-                  v-for="brand in brands"
-                  :key="brand"
-                  class="flex items-center space-x-3 cursor-pointer"
-                >
-                  <input
-                    v-model="selectedBrands"
-                    :value="brand"
-                    type="checkbox"
-                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span class="text-sm text-slate-600 dark:text-slate-400">
-                    {{ brand }}
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <!-- Price -->
-            <div class="mt-8">
-              <h3
-                class="font-semibold mb-3 text-sm text-slate-700 dark:text-slate-300"
-              >
-                Rentang Harga
-              </h3>
-              <input
-                v-model.number="priceRange.current"
-                type="range"
-                :min="priceRange.min"
-                :max="priceRange.max"
-                class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
-              />
-              <div class="flex justify-between text-xs text-slate-500 mt-2">
-                <span>${{ priceRange.min }}</span>
-                <span>${{ priceRange.current }}</span>
-                <span>${{ priceRange.max }}</span>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <!-- Products -->
-        <div class="lg:w-3/4">
-          <div
-            class="mb-6 flex items-center justify-between rounded-2xl bg-white dark:bg-slate-800/80 px-4 py-3 shadow-lg ring-1 ring-slate-900/5"
-          >
-            <p class="text-sm text-slate-600 dark:text-slate-400">
-              {{ filteredProducts.length }} produk ditemukan
-            </p>
-            <select
-              v-model="sortBy"
-              class="rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
-              <option value="default">Urutan Default</option>
-              <option value="price-asc">Harga: Rendah → Tinggi</option>
-              <option value="price-desc">Harga: Tinggi → Rendah</option>
-            </select>
-          </div>
-
-          <!-- Grid -->
-          <div
-            v-if="filteredProducts.length"
-            class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
-          >
-            <div
-              v-for="p in filteredProducts"
-              :key="p.id"
-              class="group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800/80 shadow-lg ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:-translate-y-1"
-            >
-              <div
-                class="absolute top-3 right-3 z-10 rounded-full bg-indigo-500 px-2.5 py-1 text-xs font-semibold text-white"
-              >
-                {{ p.brand }}
-              </div>
-              <div
-                class="aspect-square w-full bg-slate-100 dark:bg-slate-700/50"
-              >
-                <img
-                  :src="p.image"
-                  :alt="p.name"
-                  class="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-              <div class="p-4">
-                <h3
-                  class="truncate text-base font-semibold text-slate-900 dark:text-slate-100"
-                >
-                  {{ p.name }}
-                </h3>
-                <p
-                  class="mt-1 text-lg font-bold text-slate-800 dark:text-slate-50"
-                >
-                  ${{ p.price.toFixed(2) }}
-                </p>
-                <button
-                  @click="showProductDetails(p)"
-                  class="mt-3 w-full rounded-lg bg-indigo-600 py-2 text-sm font-semibold text-white transition-transform transform active:scale-95"
-                >
-                  Lihat Detail
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty -->
-          <div
-            v-else
-            class="flex flex-col items-center justify-center py-16 rounded-2xl bg-white dark:bg-slate-800/80 shadow-lg ring-1 ring-slate-900/5"
-          >
-            <svg
-              class="h-16 w-16 text-slate-400"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <p class="mt-4 text-slate-500">Produk tidak ditemukan</p>
-            <button
-              @click="resetFilters"
-              class="mt-2 text-sm font-medium text-indigo-500 hover:underline"
-            >
-              Reset filter
-            </button>
-          </div>
-        </div>
+        <Filters
+          :brands="brands"
+          v-model:selected-brands="selectedBrands"
+          v-model:price-range="priceRange"
+        />
+        <ProductList
+          :products="filteredProducts"
+          v-model:sort-by="sortBy"
+          @show-product-details="showProductDetails"
+          @reset-filters="resetFilters"
+        />
       </div>
     </main>
 
-    <!-- ========= FOOTER ========= -->
-    <footer class="bg-slate-900 text-slate-300">
-      <div class="mx-auto max-w-screen-2xl px-4 py-12 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div class="col-span-2 md:col-span-1">
-            <a href="#" class="flex items-center space-x-2">
-              <svg
-                class="h-7 w-7 text-indigo-400"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-.01L12 2z"
-                />
-              </svg>
-              <span class="text-xl font-bold text-white">VueMobile</span>
-            </a>
-            <p class="mt-4 text-sm leading-relaxed">
-              Toko smartphone terpercaya. Garansi resmi & harga terbaik.
-            </p>
-          </div>
-
-          <div>
-            <h3 class="font-semibold text-white">Tautan Cepat</h3>
-            <ul class="mt-4 space-y-2 text-sm">
-              <li><a href="#" class="hover:text-white">Tentang Kami</a></li>
-              <li><a href="#" class="hover:text-white">Hubungi Kami</a></li>
-              <li>
-                <a href="#" class="hover:text-white">Kebijakan Privasi</a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 class="font-semibold text-white">Ikuti Kami</h3>
-            <div class="mt-4 flex space-x-4">
-              <a href="#" class="hover:text-white">Facebook</a>
-              <a href="#" class="hover:text-white">Twitter</a>
-              <a href="#" class="hover:text-white">Instagram</a>
-            </div>
-          </div>
-
-          <div>
-            <h3 class="font-semibold text-white">Newsletter</h3>
-            <p class="mt-2 text-sm">Dapatkan promo & produk terbaru.</p>
-            <form class="mt-3">
-              <input
-                type="email"
-                placeholder="Email Anda"
-                class="w-full rounded-md bg-slate-800 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
-              />
-            </form>
-          </div>
-        </div>
-
-        <div class="mt-12 border-t border-slate-700 pt-6 text-center text-sm">
-          &copy; {{ new Date().getFullYear() }} VueMobile. All rights reserved.
-        </div>
-      </div>
-    </footer>
+    <Footer />
 
     <!-- ========= MODAL ========= -->
     <Teleport to="body">
@@ -437,39 +110,14 @@
                     {{ selectedProduct.description }}
                   </p>
 
-                  <!-- options -->
-                  <div class="mt-6 space-y-4">
-                    <div
-                      v-for="(opts, key) in selectedProduct.options"
-                      :key="key"
-                    >
-                      <label
-                        class="block text-sm font-medium text-slate-700 dark:text-slate-200"
-                      >
-                        {{
-                          key.charAt(0).toUpperCase() +
-                          key.slice(1).replace(/([A-Z])/g, " $1")
-                        }}
-                      </label>
-                      <select
-                        v-model="selection[key]"
-                        class="mt-1 block w-full rounded-md border-slate-300 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                      >
-                        <option v-for="o in opts" :key="o" :value="o">
-                          {{ o }}
-                        </option>
-                      </select>
-                    </div>
+                  <div class="mt-4 text-sm text-slate-600 dark:text-slate-300">
+                    <p v-if="selectedProduct.color"><strong>Color:</strong> {{ selectedProduct.color }}</p>
+                    <p v-if="selectedProduct.spec" class="mt-2"><strong>Specifications:</strong><br/>{{ selectedProduct.spec }}</p>
                   </div>
 
                   <!-- add to cart -->
                   <button
-                    @click="
-                      addToCart({
-                        ...selectedProduct,
-                        selectedOptions: { ...selection },
-                      })
-                    "
+                    @click="addToCart(selectedProduct)"
                     class="mt-8 w-full rounded-lg bg-indigo-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 active:scale-[0.98]"
                   >
                     Tambah ke Keranjang
@@ -503,7 +151,13 @@
 
 <script setup>
 /* eslint-disable */
-import { ref, computed, onMounted, nextTick, reactive, watch } from "vue";
+import { ref, computed, onMounted, nextTick, reactive } from "vue";
+import axios from "axios";
+import Header from "../components/Header.vue";
+import Hero from "../components/Hero.vue";
+import Filters from "../components/Filters.vue";
+import ProductList from "../components/ProductList.vue";
+import Footer from "../components/Footer.vue";
 
 /* ----------------------------------------------------------------- */
 /*  MOCK DATA – EMBED BASE64 HERO IMAGE
@@ -525,76 +179,41 @@ const selectedProduct = ref(null);
 const showModal = ref(false);
 const showToast = ref(false);
 const isDark = ref(false);
-const selection = reactive({});
 
 /* ----------------------------------------------------------------- */
-/*  MOCK DATA
+/*  API INTEGRATION
 /* -----------------------------------------------------------------*/
-const getMockProducts = () => [
-  {
-    id: 1,
-    name: "Galaxy S23 Ultra",
-    brand: "Samsung",
-    price: 1199.99,
-    image:
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMDAwIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjAwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIj5HYWxheHkgUzIzPC90ZXh0Pgo8L3N2Zz4K",
-    description:
-      "Flagship terbaik dengan layar menakjubkan, sistem kamera pro, dan performa kuat.",
-    options: {
-      colors: ["Phantom Black", "Cream", "Green", "Lavender"],
-      ram: ["8GB", "12GB"],
-      storage: ["256GB", "512GB", "1TB"],
-    },
-  },
-  {
-    id: 2,
-    name: "iPhone 15 Pro",
-    brand: "Apple",
-    price: 999,
-    image:
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjVGNUY3Ii8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjAwIiBmaWxsPSIjMUQxRDFGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIj5pUGhvbmUgMTU8L3RleHQ+Cjwvc3ZnPgo=",
-    description:
-      "Rasakan kekuatan chip A17 Bionic dan layar Super Retina XDR yang indah.",
-    options: {
-      colors: [
-        "Natural Titanium",
-        "Blue Titanium",
-        "White Titanium",
-        "Black Titanium",
-      ],
-      ram: ["8GB"],
-      storage: ["128GB", "256GB", "512GB", "1TB"],
-    },
-  },
-  {
-    id: 3,
-    name: "Pixel 8 Pro",
-    brand: "Google",
-    price: 899,
-    image:
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRTBFMEYwIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjAwIiBmaWxsPSIjNDI4NUY0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIj5QaXhlbCA4PC90ZXh0Pgo8L3N2Zz4K",
-    description: "Smartphone terpintar dengan Google AI terintegrasi.",
-    options: {
-      colors: ["Obsidian", "Porcelain", "Bay"],
-      ram: ["12GB"],
-      storage: ["128GB", "256GB", "512GB"],
-    },
-  },
-  {
-    id: 4,
-    name: "OnePlus 11",
-    brand: "OnePlus",
-    price: 699,
-    image:
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMTAxMDEwIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjAwIiBmaWxsPSIjRUIwMDI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIj5PbmVQbHVzIDExPC90ZXh0Pgo8L3N2Zz4K",
-    description: "Performa super cepat bertemu dengan desain ramping.",
-    options: {
-      colors: ["Titan Black", "Eternal Green"],
-      ram: ["8GB", "16GB"],
-      storage: ["128GB", "256GB"],
-    },
-  },
-];
+const fetchProducts = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/products');
+    const data = response.data.map(p => ({
+      id: p._id,
+      name: p.name,
+      brand: p.category ? p.category.name : 'Unbranded',
+      price: p.price,
+      image: p.photos && p.photos.length > 0 ? p.photos[0] : 'https://via.placeholder.com/400',
+      description: p.description,
+      spec: p.spec,
+      color: p.color,
+      // Add a default options object to avoid errors in the modal
+      options: {},
+    }));
+    products.value = data;
+
+    // Update filters based on fetched data
+    brands.value = [...new Set(data.map(p => p.brand))].sort();
+    const prices = data.map(p => p.price);
+    if (prices.length > 0) {
+      priceRange.value.min = Math.floor(Math.min(...prices));
+      priceRange.value.max = Math.ceil(Math.max(...prices));
+      priceRange.value.current = priceRange.value.max;
+    }
+
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    // Optionally, handle the error in the UI
+  }
+};
 
 /* ----------------------------------------------------------------- */
 /*  COMPUTED
@@ -626,9 +245,6 @@ const showProductDetails = (product) => {
   selectedProduct.value = product;
   showModal.value = true;
   nextTick(() => {
-    Object.keys(product.options).forEach((k) => {
-      selection[k] = product.options[k][0];
-    });
     document.body.style.overflow = "hidden";
   });
 };
@@ -662,14 +278,7 @@ const toggleDark = () => {
 /*  LIFECYCLE
 /* -----------------------------------------------------------------*/
 onMounted(() => {
-  const data = getMockProducts();
-  products.value = data;
-  brands.value = [...new Set(data.map((p) => p.brand))].sort();
-  const prices = data.map((p) => p.price);
-  priceRange.value.min = Math.floor(Math.min(...prices));
-  priceRange.value.max = Math.ceil(Math.max(...prices));
-  priceRange.value.current = priceRange.value.max;
-
+  fetchProducts();
   // dark mode
   isDark.value = localStorage.getItem("dark") === "true";
 });
