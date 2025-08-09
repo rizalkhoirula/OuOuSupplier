@@ -1,71 +1,35 @@
 <template>
-  <div class="lg:w-3/4">
-    <div
-      class="mb-6 flex items-center justify-between rounded-2xl bg-white dark:bg-slate-800/80 px-4 py-3 shadow-lg ring-1 ring-slate-900/5"
-    >
-      <p class="text-sm text-slate-600 dark:text-slate-400">
-        {{ products.length }} produk ditemukan
-      </p>
-      <select
-        :value="sortBy"
-        @change="$emit('update:sortBy', $event.target.value)"
-        class="rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-      >
-        <option value="default">Urutan Default</option>
-        <option value="price-asc">Harga: Rendah → Tinggi</option>
-        <option value="price-desc">Harga: Tinggi → Rendah</option>
-      </select>
+  <div class="w-full">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold">Featured Products</h2>
+      <div class="flex items-center space-x-2">
+        <label for="sort" class="text-sm">Sort by:</label>
+        <select id="sort" class="border border-gray-300 rounded-md px-2 py-1 text-sm">
+          <option>Best Match</option>
+          <option>Price: Low to High</option>
+          <option>Price: High to Low</option>
+          <option>Newest Arrivals</option>
+        </select>
+      </div>
     </div>
-
-    <!-- Grid -->
-    <div
-      v-if="products.length"
-      class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
-    >
-      <ProductCard
-        v-for="p in products"
-        :key="p.id"
-        :product="p"
-        @open="$emit('showProductDetails', p)"
-      />
-    </div>
-
-    <!-- Empty -->
-    <div
-      v-else
-      class="flex flex-col items-center justify-center py-16 rounded-2xl bg-white dark:bg-slate-800/80 shadow-lg ring-1 ring-slate-900/5"
-    >
-      <svg
-        class="h-16 w-16 text-slate-400"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
-      <p class="mt-4 text-slate-500">Produk tidak ditemukan</p>
-      <button
-        @click="$emit('resetFilters')"
-        class="mt-2 text-sm font-medium text-indigo-500 hover:underline"
-      >
-        Reset filter
-      </button>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <ProductCard v-for="product in products" :key="product.id" :product="product" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import ProductCard from './ProductCard.vue';
 
-defineProps({
-  products: Array,
-  sortBy: String,
-});
-
-defineEmits(['update:sortBy', 'showProductDetails', 'resetFilters']);
+const products = ref([
+  { id: 1, name: 'iPhone 15 Pro Max', category: 'Smartphones', price: 1199, oldPrice: 1299, rating: 5, reviews: 142, isNew: true, image: 'https://placehold.co/600x600/3498db/ffffff?text=iPhone+15' },
+  { id: 2, name: 'Samsung Galaxy S24 Ultra', category: 'Smartphones', price: 1099, rating: 4, reviews: 98, isNew: true, image: 'https://placehold.co/600x600/2ecc71/ffffff?text=Galaxy+S24' },
+  { id: 3, name: 'Google Pixel 9 Pro', category: 'Smartphones', price: 999, rating: 5, reviews: 77, isNew: true, image: 'https://placehold.co/600x600/e74c3c/ffffff?text=Pixel+9' },
+  { id: 4, name: 'Sony WH-1000XM5 Headphones', category: 'Audio', price: 399, oldPrice: 449, rating: 5, reviews: 210, isNew: false, image: 'https://placehold.co/600x600/f39c12/ffffff?text=Sony+XM5' },
+  { id: 5, name: 'Apple MacBook Air M3', category: 'Laptops', price: 1299, rating: 5, reviews: 180, isNew: false, image: 'https://placehold.co/600x600/9b59b6/ffffff?text=MacBook+Air' },
+  { id: 6, name: 'Dell XPS 15', category: 'Laptops', price: 1499, rating: 4, reviews: 150, isNew: false, image: 'https://placehold.co/600x600/34495e/ffffff?text=Dell+XPS' },
+  { id: 7, name: 'Apple iPad Pro', category: 'Tablets', price: 799, rating: 5, reviews: 320, isNew: false, image: 'https://placehold.co/600x600/1abc9c/ffffff?text=iPad+Pro' },
+  { id: 8, name: 'Samsung Galaxy Tab S9', category: 'Tablets', price: 699, rating: 4, reviews: 112, isNew: false, image: 'https://placehold.co/600x600/7f8c8d/ffffff?text=Tab+S9' },
+]);
 </script>

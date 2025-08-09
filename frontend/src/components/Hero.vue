@@ -1,35 +1,35 @@
 <template>
-  <section
-    class="relative flex items-center justify-center bg-cover bg-center py-24 sm:py-32 text-center text-white"
-    :style="{
-      backgroundImage: `linear-gradient(rgba(15,23,42,.75),rgba(15,23,42,.75)), url(${heroImg})`,
-    }"
-  >
-    <div class="mx-auto max-w-3xl px-4">
-      <h1
-        class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight"
-      >
-        Teknologi Terbaru di Ujung Jari Anda
-      </h1>
-      <p class="mt-6 text-lg text-slate-200 max-w-xl mx-auto">
-        Jelajahi koleksi smartphone terbaru dari merek-merek ternama dunia.
-        Penawaran terbaik menanti Anda.
-      </p>
-      <a
-        href="#products"
-        class="mt-10 inline-block rounded-full bg-white px-8 py-3 text-sm font-semibold text-slate-900 shadow-lg hover:bg-slate-100 transition-transform transform hover:scale-105"
-      >
-        Belanja Sekarang
-      </a>
+  <div class="relative bg-primary overflow-hidden">
+    <div class="container mx-auto px-4 py-24 lg:py-32">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div class="text-white z-10">
+          <div class="slide-up">
+            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+              iPhone 15 Pro
+            </h1>
+            <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-lg">
+              The ultimate iPhone. A magical new way to interact with iPhone.
+              Groundbreaking safety features. And an innovative 48MP camera for
+              mind-blowing detail.
+            </p>
+            <div class="flex space-x-4">
+              <a href="#" class="btn-primary">
+                Buy Now
+              </a>
+              <a href="#" class="bg-secondary text-white font-bold py-3 px-8 rounded-full hover:bg-secondary/80 transition-all duration-300 transform hover:scale-105">
+                Learn More
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="relative h-full flex items-center justify-center">
+          <div class="absolute w-96 h-96 bg-accent/20 rounded-full blur-3xl"></div>
+          <img src="../assets/images/iphone.jpg" alt="iPhone 15 Pro" class="w-full h-auto max-w-md mx-auto transform lg:scale-125 fade-in z-10">
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup>
-defineProps({
-  heroImg: {
-    type: String,
-    required: true,
-  },
-});
 </script>

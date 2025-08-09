@@ -1,85 +1,98 @@
 <template>
-  <aside class="lg:w-1/4 mb-8 lg:mb-0">
-    <div
-      class="rounded-2xl bg-white dark:bg-slate-800/80 p-6 shadow-lg ring-1 ring-slate-900/5"
-    >
-      <h2
-        class="text-xl font-bold mb-6 border-b pb-3 dark:border-slate-700"
-      >
-        Filter
-      </h2>
+  <div class="bg-white p-6 rounded-xl shadow-lg sticky top-28">
+    <h3 class="text-2xl font-bold mb-6 text-primary">Filters</h3>
+    
+    <!-- Category Filter -->
+    <div class="mb-6">
+      <h4 class="font-bold text-lg mb-3 text-secondary">Category</h4>
+      <ul class="space-y-2">
+        <li><a href="#" class="text-gray-600 hover:text-accent transition-colors font-medium">Smartphones</a></li>
+        <li><a href="#" class="text-gray-600 hover:text-accent transition-colors font-medium">Laptops</a></li>
+        <li><a href="#" class="text-gray-600 hover:text-accent transition-colors font-medium">Tablets</a></li>
+        <li><a href="#" class="text-gray-600 hover:text-accent transition-colors font-medium">Headphones</a></li>
+        <li><a href="#" class="text-gray-600 hover:text-accent transition-colors font-medium">Accessories</a></li>
+      </ul>
+    </div>
 
-      <!-- Brand -->
-      <div>
-        <h3
-          class="font-semibold mb-3 text-sm text-slate-700 dark:text-slate-300"
-        >
-          Merek
-        </h3>
-        <div class="space-y-2">
-          <label
-            v-for="brand in brands"
-            :key="brand"
-            class="flex items-center space-x-3 cursor-pointer"
-          >
-            <input
-              v-model="selectedBrandsModel"
-              :value="brand"
-              type="checkbox"
-              class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-            />
-            <span class="text-sm text-slate-600 dark:text-slate-400">
-              {{ brand }}
-            </span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Price -->
-      <div class="mt-8">
-        <h3
-          class="font-semibold mb-3 text-sm text-slate-700 dark:text-slate-300"
-        >
-          Rentang Harga
-        </h3>
-        <input
-          v-model.number="priceRangeModel"
-          type="range"
-          :min="priceRange.min"
-          :max="priceRange.max"
-          class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
-        />
-        <div class="flex justify-between text-xs text-slate-500 mt-2">
-          <span>${{ priceRange.min }}</span>
-          <span>${{ priceRange.current }}</span>
-          <span>${{ priceRange.max }}</span>
-        </div>
+    <!-- Price Range Filter -->
+    <div class="mb-6">
+      <h4 class="font-bold text-lg mb-3 text-secondary">Price Range</h4>
+      <input type="range" min="0" max="2000" value="1000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-slider">
+      <div class="flex justify-between text-sm text-gray-600 mt-2 font-medium">
+        <span>$0</span>
+        <span>$2000</span>
       </div>
     </div>
-  </aside>
+
+    <!-- Brand Filter -->
+    <div>
+      <h4 class="font-bold text-lg mb-3 text-secondary">Brand</h4>
+      <ul class="space-y-3">
+        <li><label class="flex items-center custom-checkbox"><input type="checkbox" class="mr-3"> Apple</label></li>
+        <li><label class="flex items-center custom-checkbox"><input type="checkbox" class="mr-3"> Samsung</label></li>
+        <li><label class="flex items-center custom-checkbox"><input type="checkbox" class="mr-3"> Google</label></li>
+        <li><label class="flex items-center custom-checkbox"><input type="checkbox" class="mr-3"> Sony</label></li>
+        <li><label class="flex items-center custom-checkbox"><input type="checkbox" class="mr-3"> Xiaomi</label></li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
-const props = defineProps({
-  brands: Array,
-  selectedBrands: Array,
-  priceRange: Object,
-});
-
-const emit = defineEmits(['update:selectedBrands', 'update:priceRange']);
-
-const selectedBrandsModel = computed({
-  get: () => props.selectedBrands,
-  set: (value) => emit('update:selectedBrands', value),
-});
-
-const priceRangeModel = computed({
-  get: () => props.priceRange.current,
-  set: (value) => {
-    const newPriceRange = { ...props.priceRange, current: value };
-    emit('update:priceRange', newPriceRange);
-  }
-});
 </script>
+
+<style scoped>
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #3498db;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.range-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #3498db;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.custom-checkbox input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  margin: 0;
+  font: inherit;
+  color: currentColor;
+  width: 1.15em;
+  height: 1.15em;
+  border: 0.15em solid currentColor;
+  border-radius: 0.15em;
+  transform: translateY(-0.075em);
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+}
+
+.custom-checkbox input[type="checkbox"]::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em #3498db;
+  transform-origin: bottom left;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.custom-checkbox input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+</style>

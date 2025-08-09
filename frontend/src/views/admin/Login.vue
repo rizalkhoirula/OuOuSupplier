@@ -1,24 +1,41 @@
 <template>
-  <div class="login-container">
-    <h2>Admin Login</h2>
-    <form @submit.prevent="login" class="login-form">
-      <input
-        v-model="email"
-        type="email"
-        placeholder="Email"
-        required
-        autocomplete="username"
-      />
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Password"
-        required
-        autocomplete="current-password"
-      />
-      <button type="submit">Login</button>
-    </form>
-    <p v-if="error" class="error-msg">{{ error }}</p>
+  <div class="flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-900">
+    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-slate-800">
+      <h2 class="text-2xl font-bold text-center text-slate-900 dark:text-white">Admin Login</h2>
+      <form @submit.prevent="login" class="space-y-6">
+        <div>
+          <label for="email" class="text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
+          <input
+            v-model="email"
+            id="email"
+            type="email"
+            placeholder="Email"
+            required
+            autocomplete="username"
+            class="w-full px-3 py-2 mt-1 text-slate-900 bg-slate-50 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+          />
+        </div>
+        <div>
+          <label for="password" class="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+          <input
+            v-model="password"
+            id="password"
+            type="password"
+            placeholder="Password"
+            required
+            autocomplete="current-password"
+            class="w-full px-3 py-2 mt-1 text-slate-900 bg-slate-50 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full px-4 py-2 font-semibold text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Login
+        </button>
+      </form>
+      <p v-if="error" class="mt-4 text-sm text-center text-red-600 dark:text-red-400">{{ error }}</p>
+    </div>
   </div>
 </template>
 
@@ -41,7 +58,7 @@ async function login() {
   }
   try {
     const response = await axios.post(
-      "http://localhost:5000/api/users/login",
+      `${import.meta.env.VITE_API_URL}/users/login`,
       {
         email: email.value,
         password: password.value,
@@ -68,59 +85,4 @@ async function login() {
 }
 </script>
 
-<style scoped>
-.login-container {
-  max-width: 400px;
-  margin: 80px auto;
-  padding: 30px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
-}
 
-h2 {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-}
-
-.login-form input {
-  padding: 12px 10px;
-  margin-bottom: 16px;
-  font-size: 16px;
-  border: 1px solid #bbb;
-  border-radius: 4px;
-  outline: none;
-  transition: border-color 0.3s;
-}
-
-.login-form input:focus {
-  border-color: #409eff;
-}
-
-.login-form button {
-  padding: 12px;
-  background-color: #409eff;
-  border: none;
-  color: white;
-  font-weight: 600;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.login-form button:hover {
-  background-color: #66b1ff;
-}
-
-.error-msg {
-  margin-top: 10px;
-  color: #f56c6c;
-  text-align: center;
-}
-</style>

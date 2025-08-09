@@ -1,7 +1,7 @@
 <template>
-  <div class="dashboard">
+  <div class="flex h-screen bg-slate-100 dark:bg-slate-900">
     <Sidebar />
-    <main class="content">
+    <main class="flex-1 p-6 overflow-y-auto">
       <router-view />
     </main>
   </div>
@@ -10,15 +10,3 @@
 <script setup>
 import Sidebar from "../../components/Sidebar.vue";
 </script>
-
-<style>
-.dashboard {
-  display: flex;
-  height: 100vh;
-}
-.content {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-}
-</style>
