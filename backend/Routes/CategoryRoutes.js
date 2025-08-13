@@ -8,6 +8,5 @@ const {
 
 router.post("/", createCategory);
 router.get("/", getAllCategories);
-router.get("/:id/products", getProductsByCategory);
 
 module.exports = router;

@@ -1,61 +1,49 @@
 const Review = require('../Models/Review');
-const path = require('path');
-const supabase = require('../utils/supabaseClient');
+const Product = require('../Models/Product');
 
-// @desc    Create a review with multiple photos
-// @route   POST /api/reviews
-exports.createReview = async (req, res) => {
-  try {
-    const { name, description, product } = req.body;
-    let photoUrls = [];
+// @desc    Create a review
+// @route   POST /api/products/:id/reviews
+exports.createProductReview = async (req, res) => {
+  const { rating, comment } = req.body;
+  const product = await Product.findById(req.params.id);
 
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const folder = 'review';
-        const ext = path.extname(file.originalname);
-        const filename = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}${ext}`;
+  if (product) {
+    const alreadyReviewed = await Review.findOne({
+      product: req.params.id,
+      user: req.user._id,
+    });
 
-        const { error } = await supabase
-          .storage
-          .from(process.env.SUPABASE_BUCKET)
-          .upload(filename, file.buffer, {
-            contentType: file.mimetype,
-          });
-
-        if (error) throw error;
-
-        const { publicUrl } = supabase
-          .storage
-          .from(process.env.SUPABASE_BUCKET)
-          .getPublicUrl(filename).data;
-
-        photoUrls.push(publicUrl);
-      }
+    if (alreadyReviewed) {
+      res.status(400);
+      throw new Error('Product already reviewed');
     }
 
     const review = new Review({
-      name,
-      description,
-      product,
-      photos: photoUrls
+      name: req.user.name,
+      rating: Number(rating),
+      comment,
+      user: req.user._id,
+      product: req.params.id,
     });
 
-    const saved = await review.save();
-    res.status(201).json(saved);
+    await review.save();
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
+    const reviews = await Review.find({ product: req.params.id });
+    product.numReviews = reviews.length;
+    product.rating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
+
+    await product.save();
+    res.status(201).json({ message: 'Review added' });
+  } else {
+    res.status(404);
+    throw new Error('Product not found');
   }
 };
 
-// @desc    Get all reviews
-// @route   GET /api/reviews
-exports.getAllReviews = async (req, res) => {
-  try {
-    const reviews = await Review.find().populate('product');
-    res.json(reviews);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+// @desc    Get reviews for a product
+// @route   GET /api/products/:id/reviews
+exports.getProductReviews = async (req, res) => {
+  const reviews = await Review.find({ product: req.params.id });
+  res.json(reviews);
 };
+

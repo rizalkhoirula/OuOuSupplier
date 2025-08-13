@@ -55,27 +55,20 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user._id, email: user.email, role: user.role }, // Include role in JWT payload
       JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    // Send JWT as httpOnly cookie
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: false, // true in production with HTTPS
-        sameSite: "lax", // or 'none' if cross-site
-        maxAge: 3600000, // 1 hour
-      })
-      .json({
-        message: "Login successful",
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-        },
-      });
+    const userObject = user.toObject();
+    // Remove password from the object before sending
+    delete userObject.password;
+
+    res.status(200).json({
+      message: "Login successful",
+      user: userObject,
+      token: token,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

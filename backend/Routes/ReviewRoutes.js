@@ -1,13 +1,12 @@
-// routes/ReviewRoutes.js
 const express = require('express');
-const router = express.Router();
-const upload = require('../utils/uploads');
+const router = express.Router({ mergeParams: true });
 const {
-  createReview,
-  getAllReviews,
+  createProductReview,
+  getProductReviews,
 } = require('../Controller/ReviewController');
+const { protect } = require('../middleware/authMiddleware');
 
-router.post('/', upload.array('photos',5), createReview); // multiple photos
-router.get('/', getAllReviews);
+router.route('/').post(protect, createProductReview).get(getProductReviews);
 
 module.exports = router;
+

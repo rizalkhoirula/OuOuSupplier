@@ -5,14 +5,16 @@ const {
   loginUser,
   getUsers,
 } = require("../Controller/UserController");
-const authenticateUser = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
+
 // Public routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 
-router.get('/me', authenticateUser, (req, res) => {
+router.get('/profile', protect, (req, res) => {
   res.json({ user: req.user });
 });
+
 // Optional: For test/dev only
 router.get("/", getUsers);
 

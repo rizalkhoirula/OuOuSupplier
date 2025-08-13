@@ -1,6 +1,6 @@
 const multer = require('multer');
 
-// pakai memory storage karena kita tidak menyimpan lokal
+// Use memory storage to handle file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 

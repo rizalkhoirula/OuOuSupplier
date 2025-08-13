@@ -11,6 +11,21 @@ const productSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
   },
+  rating: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  numReviews: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  stock: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);
