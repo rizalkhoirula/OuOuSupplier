@@ -2,8 +2,11 @@ import React from 'react';
 import { Box, Container, Typography, Link, Grid, IconButton } from '@mui/material';
 import { Facebook, Twitter, Instagram, LinkedIn } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <Box
       component="footer"
@@ -20,21 +23,21 @@ const Footer = () => {
               OuOu
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Your one-stop shop for the latest and greatest tech products.
+              {t('footer_description')}
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-              Quick Links
+              {t('quick_links')}
             </Typography>
-            <Link component={RouterLink} to="/" color="text.secondary" display="block" sx={{ mb: 1 }}>Home</Link>
-            <Link component={RouterLink} to="/products" color="text.secondary" display="block" sx={{ mb: 1 }}>Products</Link>
-            <Link component={RouterLink} to="/cart" color="text.secondary" display="block" sx={{ mb: 1 }}>Cart</Link>
-            <Link component={RouterLink} to="/login" color="text.secondary" display="block">Login</Link>
+            <Link component={RouterLink} to="/" color="text.secondary" display="block" sx={{ mb: 1 }}>{t('home')}</Link>
+            <Link component={RouterLink} to="/products" color="text.secondary" display="block" sx={{ mb: 1 }}>{t('products')}</Link>
+            <Link component={RouterLink} to="/cart" color="text.secondary" display="block" sx={{ mb: 1 }}>{t('cart')}</Link>
+            <Link component={RouterLink} to="/login" color="text.secondary" display="block">{t('login')}</Link>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-              Follow Us
+              {t('follow_us')}
             </Typography>
             <Box>
               <IconButton component="a" href="https://facebook.com" target="_blank" color="inherit"><Facebook /></IconButton>
@@ -46,9 +49,7 @@ const Footer = () => {
         </Grid>
         <Box mt={4} pt={3} sx={{ borderTop: '1px solid #e0e0e0' }}>
           <Typography variant="body2" color="text.secondary" align="center">
-            {'Copyright © '}
-            OuOuSupplier {new Date().getFullYear()}
-            {'.'}
+            {t('copyright')}
           </Typography>
         </Box>
       </Container>

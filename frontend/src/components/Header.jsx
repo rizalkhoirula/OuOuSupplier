@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -12,210 +12,468 @@ import {
   Box,
   Container,
   Divider,
-} from '@mui/material';
-import { styled, alpha } from '@mui/material/styles';
+  useMediaQuery,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Paper,
+  Select,
+  Avatar,
+} from "@mui/material";
+import { styled, alpha, useTheme } from "@mui/material/styles";
 import {
   Search as SearchIcon,
   ShoppingCartOutlined as ShoppingCartIcon,
   FavoriteBorderOutlined as FavoriteIcon,
   AccountCircleOutlined as AccountCircleIcon,
   Menu as MenuIcon,
-} from '@mui/icons-material';
-import { Link, useNavigate } from 'react-router-dom';
-import useFetch from '../hooks/useFetch';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.black, 0.05),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
-    width: 'auto',
-  },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: theme.palette.text.secondary,
-}));
+  ChevronLeft as ChevronLeftIcon,
+  Login as LoginIcon,
+  Logout as LogoutIcon,
+  Dashboard as DashboardIcon,
+  ShoppingBag as ShoppingBagIcon,
+  Person as PersonIcon,
+  Category as CategoryIcon,
+  Translate as TranslateIcon,
+} from "@mui/icons-material";
+import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import { useFavorites } from "../context/FavoriteContext";
+import useFetch from "../hooks/useFetch";
+import getImageUrl from "../utils/getImageUrl";
+import { useTranslation } from "react-i18next";
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1.5, 1.5, 1.5, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '30ch',
-    },
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: theme.spacing(2),
+    width: "100%",
   },
 }));
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
-  const { data: categories } = useFetch('/categories');
   const { cartItems } = useCart();
+  const { favoriteItems } = useFavorites();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { data: categories } = useFetch("/categories");
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [keyword, setKeyword] = useState("");
+  const [category, setCategory] = useState("all");
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const handleUserMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleUserMenuClose = () => setAnchorEl(null);
+  const handleMobileMenuToggle = () => setMobileMenuOpen(!mobileMenuOpen);
+  const handleMobileSearchToggle = () => setMobileSearchOpen(!mobileSearchOpen);
 
   const handleLogout = () => {
     logout();
-    handleClose();
+    handleUserMenuClose();
   };
 
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (keyword.trim()) {
+      let searchUrl = `/search?keyword=${keyword.trim()}`;
+      if (category !== "all") {
+        searchUrl += `&category=${category}`;
+      }
+      navigate(searchUrl);
+      if (isMobile) {
+        setMobileSearchOpen(false);
+      }
+    }
   };
 
   const cartItemCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
-  return (
-    <AppBar position="static" color="default" elevation={0} sx={{ borderBottom: `1px solid #e0e0e0` }}>
-      <Container>
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Typography
-            variant="h5"
-            component={Link}
-            to="/"
-            sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 'bold' }}
-          >
-            OuOu
-          </Typography>
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, flexGrow: 1, justifyContent: 'center' }}>
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase placeholder="Search for products…" inputProps={{ 'aria-label': 'search' }} />
-            </Search>
-          </Box>
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-            <IconButton component={Link} to="/cart" size="large" color="inherit">
+  const renderUserMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleUserMenuClose}
+      transformOrigin={{ horizontal: "right", vertical: "top" }}
+      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+    >
+      <MenuItem
+        onClick={() => {
+          handleUserMenuClose();
+          navigate("/profile");
+        }}
+      >
+        <ListItemIcon>
+          <PersonIcon fontSize="small" />
+        </ListItemIcon>
+        {t('profile')}
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          handleUserMenuClose();
+          navigate("/myorders");
+        }}
+      >
+        <ListItemIcon>
+          <ShoppingBagIcon fontSize="small" />
+        </ListItemIcon>
+        {t('my_orders')}
+      </MenuItem>
+      {user?.role === "admin" && (
+        <MenuItem
+          onClick={() => {
+            handleUserMenuClose();
+            navigate("/dashboard");
+          }}
+        >
+          <ListItemIcon>
+            <DashboardIcon fontSize="small" />
+          </ListItemIcon>
+          {t('dashboard')}
+        </MenuItem>
+      )}
+      <Divider />
+      <MenuItem onClick={handleLogout}>
+        <ListItemIcon>
+          <LogoutIcon fontSize="small" />
+        </ListItemIcon>
+        {t('logout')}
+      </MenuItem>
+    </Menu>
+  );
+
+  const renderMobileMenu = (
+    <Drawer
+      anchor="right"
+      open={mobileMenuOpen}
+      onClose={handleMobileMenuToggle}
+    >
+      <Box
+        sx={{ width: 250, role: "presentation" }}
+        onClick={handleMobileMenuToggle}
+        onKeyDown={handleMobileMenuToggle}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            p: 1,
+          }}
+        >
+          <IconButton>
+            <ChevronLeftIcon />
+          </IconButton>
+        </Box>
+        <Divider />
+        <List>
+          <ListItem button onClick={() => changeLanguage(i18n.language === 'en' ? 'my' : 'en')}>
+            <ListItemIcon>
+              <TranslateIcon />
+            </ListItemIcon>
+            <ListItemText primary={i18n.language === 'en' ? 'မြန်မာ' : 'English'} />
+          </ListItem>
+          <ListItem button component={Link} to="/cart">
+            <ListItemIcon>
               <Badge badgeContent={cartItemCount} color="primary">
                 <ShoppingCartIcon />
               </Badge>
-            </IconButton>
-            <IconButton component={Link} to="/favorites" size="large" color="inherit">
+            </ListItemIcon>
+            <ListItemText primary={t('cart')} />
+          </ListItem>
+          <ListItem button component={Link} to="/favorites">
+            <ListItemIcon>
               <FavoriteIcon />
-            </IconButton>
-            {user ? (
-              <>
-                <IconButton size="large" onClick={handleMenu} color="inherit">
-                  <AccountCircleIcon />
-                </IconButton>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
-                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                  PaperProps={{
-                    elevation: 3,
-                    sx: {
-                      overflow: 'visible',
-                      mt: 1.5,
-                      '& .MuiAvatar-root': {
-                        width: 32,
-                        height: 32,
-                        ml: -0.5,
-                        mr: 1,
-                      },
-                    },
-                  }}
+            </ListItemIcon>
+            <ListItemText primary={t('favorites')} />
+          </ListItem>
+          <Divider sx={{ my: 1 }} />
+          <List>
+            <ListItem>
+              <ListItemIcon>
+                <CategoryIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('categories')} />
+            </ListItem>
+            {categories &&
+              categories.map((category) => (
+                <ListItem
+                  button
+                  key={category.name}
+                  component={Link}
+                  to={`/category/${category.name.toLowerCase()}`}
+                  sx={{ pl: 4 }}
                 >
-                  <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>Profile</MenuItem>
-                  <MenuItem onClick={() => { handleClose(); navigate('/myorders'); }}>My Orders</MenuItem>
-                  {user.role === 'admin' && (
-                    <MenuItem onClick={() => { handleClose(); navigate('/dashboard'); }}>Dashboard</MenuItem>
-                  )}
-                  <Divider />
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                </Menu>
-              </>
-            ) : (
-              <Button component={Link} to="/login" variant="outlined" sx={{ ml: 1 }}>
-                Login
-              </Button>
-            )}
-          </Box>
-          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-            <IconButton size="large" onClick={handleMobileMenuOpen} color="inherit">
-              <MenuIcon />
-            </IconButton>
-          </Box>
-        </Toolbar>
-        <Toolbar
-          component="nav"
-          variant="dense"
-          sx={{
-            justifyContent: 'center',
-            borderTop: '1px solid #e0e0e0',
-            display: { xs: 'none', md: 'flex' },
-          }}
-        >
-          {categories &&
-            categories.map((category) => (
-              <Button
-                key={category.name}
-                component={Link}
-                to={`/category/${category.name.toLowerCase()}`}
-                sx={{ color: 'text.primary', mx: 2, fontWeight: 400 }}
-              >
-                {category.name}
-              </Button>
-            ))}
-        </Toolbar>
-      </Container>
-      <Menu
-        anchorEl={mobileMoreAnchorEl}
-        open={Boolean(mobileMoreAnchorEl)}
-        onClose={handleMobileMenuClose}
-        sx={{ display: { xs: 'block', md: 'none' } }}
+                  <ListItemText primary={category.name} />
+                </ListItem>
+              ))}
+          </List>
+          <Divider sx={{ my: 1 }} />
+          {user ? (
+            <>
+              <ListItem button component={Link} to="/profile">
+                <ListItemIcon>
+                  <PersonIcon />
+                </ListItemIcon>
+                <ListItemText primary={t('profile')} />
+              </ListItem>
+              <ListItem button component={Link} to="/myorders">
+                <ListItemIcon>
+                  <ShoppingBagIcon />
+                </ListItemIcon>
+                <ListItemText primary={t('my_orders')} />
+              </ListItem>
+              {user.role === "admin" && (
+                <ListItem button component={Link} to="/dashboard">
+                  <ListItemIcon>
+                    <DashboardIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={t('dashboard')} />
+                </ListItem>
+              )}
+              <ListItem button onClick={logout}>
+                <ListItemIcon>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary={t('logout')} />
+              </ListItem>
+            </>
+          ) : (
+            <ListItem button component={Link} to="/login">
+              <ListItemIcon>
+                <LoginIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('login')} />
+            </ListItem>
+          )}
+        </List>
+      </Box>
+    </Drawer>
+  );
+
+  const desktopSearch = (
+    <Paper
+      component="form"
+      onSubmit={handleSearchSubmit}
+      sx={{
+        p: "2px 4px",
+        display: "flex",
+        alignItems: "center",
+        width: 600,
+        borderRadius: "20px",
+        border: "1px solid #e0e0e0",
+        boxShadow: "none",
+      }}
+    >
+      <Select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        variant="standard"
+        disableUnderline
+        sx={{
+          m: "2px",
+          "& .MuiSelect-select": {
+            p: "8px 24px 8px 12px",
+            color: "text.secondary",
+          },
+        }}
       >
-        {categories &&
-          categories.map((category) => (
-            <MenuItem
-              key={category.name}
-              onClick={() => {
-                handleMobileMenuClose();
-                navigate(`/category/${category.name.toLowerCase()}`);
+        <MenuItem value="all">{t('all')}</MenuItem>
+        {categories?.map((cat) => (
+          <MenuItem key={cat._id} value={cat.name}>
+            {cat.name}
+          </MenuItem>
+        ))}
+      </Select>
+      <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+      <StyledInputBase
+        placeholder={t('search_products')}
+        inputProps={{ "aria-label": "search" }}
+        onChange={(e) => setKeyword(e.target.value)}
+        sx={{ ml: 1, flex: 1 }}
+      />
+      <IconButton type="submit" sx={{ p: "10px" }} aria-label="search">
+        <SearchIcon />
+      </IconButton>
+    </Paper>
+  );
+
+  const mobileSearch = (
+    <Container sx={{ py: 1 }}>
+      <Paper
+        component="form"
+        onSubmit={handleSearchSubmit}
+        sx={{
+          p: "2px 4px",
+          display: "flex",
+          alignItems: "center",
+          width: "100%",
+          borderRadius: "20px",
+          border: "1px solid #e0e0e0",
+          boxShadow: "none",
+        }}
+      >
+        <StyledInputBase
+          placeholder={t('search_products')}
+          inputProps={{ "aria-label": "search" }}
+          onChange={(e) => setKeyword(e.target.value)}
+          sx={{ ml: 1, flex: 1 }}
+        />
+        <IconButton type="submit" sx={{ p: "10px" }} aria-label="search">
+          <SearchIcon />
+        </IconButton>
+      </Paper>
+    </Container>
+  );
+
+  return (
+    <>
+      <AppBar
+        position="sticky"
+        color="inherit"
+        elevation={0}
+        sx={{ bgcolor: "background.paper", borderBottom: "1px solid #e0e0e0" }}
+      >
+        <Container>
+          <Toolbar sx={{ justifyContent: "space-between" }}>
+            <Typography
+              variant="h5"
+              component={Link}
+              to="/"
+              sx={{
+                textDecoration: "none",
+                color: "inherit",
+                fontWeight: "bold",
               }}
             >
-              {category.name}
-            </MenuItem>
-          ))}
-      </Menu>
-    </AppBar>
+              OuOu
+            </Typography>
+
+            {!isMobile && (
+              <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
+                {desktopSearch}
+              </Box>
+            )}
+
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {isMobile && (
+                <IconButton
+                  size="large"
+                  color="inherit"
+                  onClick={handleMobileSearchToggle}
+                >
+                  <SearchIcon />
+                </IconButton>
+              )}
+              <Button
+                id="language-icon"
+                color="inherit"
+                onClick={() => changeLanguage(i18n.language === 'en' ? 'my' : 'en')}
+                startIcon={<TranslateIcon />}
+              >
+                {i18n.language === 'en' ? 'မြန်မာ' : 'English'}
+              </Button>
+              <IconButton
+                id="cart-icon"
+                component={Link}
+                to="/cart"
+                size="large"
+                color="inherit"
+              >
+                <Badge badgeContent={cartItemCount} color="primary">
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconButton>
+              <IconButton
+                id="favorite-icon"
+                component={Link}
+                to="/favorites"
+                size="large"
+                color="inherit"
+                sx={{ display: { xs: "none", md: "inline-flex" } }}
+              >
+                <Badge badgeContent={favoriteItems.length} color="primary">
+                  <FavoriteIcon />
+                </Badge>
+              </IconButton>
+              {user ? (
+                <IconButton
+                  size="large"
+                  edge="end"
+                  onClick={handleUserMenuOpen}
+                  color="inherit"
+                >
+                  <Avatar
+                    src={getImageUrl(user.avatar)}
+                    alt={user.name}
+                    sx={{ width: 32, height: 32 }}
+                  >
+                    {!user.avatar && <AccountCircleIcon />}
+                  </Avatar>
+                </IconButton>
+              ) : (
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="outlined"
+                  size="small"
+                  sx={{ ml: 1, borderRadius: "20px", display: { xs: "none", md: "inline-flex" } }}
+                >
+                  {t('login')}
+                </Button>
+              )}
+              {isMobile && (
+                <IconButton
+                  size="large"
+                  edge="end"
+  
+                  color="inherit"
+                  onClick={handleMobileMenuToggle}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
+            </Box>
+          </Toolbar>
+        </Container>
+        {mobileSearchOpen && isMobile && mobileSearch}
+        {renderUserMenu}
+        {renderMobileMenu}
+        {!isMobile && (
+          <Toolbar
+            component="nav"
+            variant="dense"
+            sx={{
+              justifyContent: "center",
+              borderTop: "1px solid #e0e0e0",
+            }}
+          >
+            {categories &&
+              categories.map((category) => (
+                <Button
+                  key={category.name}
+                  component={Link}
+                  to={`/category/${category.name.toLowerCase()}`}
+                  sx={{ color: "text.primary", mx: 2, fontWeight: 400 }}
+                >
+                  {category.name}
+                </Button>
+              ))}
+          </Toolbar>
+        )}
+      </AppBar>
+    </>
   );
 };
 

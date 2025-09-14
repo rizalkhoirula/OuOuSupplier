@@ -8,7 +8,6 @@ const orderRoutes = require("./Routes/OrderRoutes");
 const categoryRoutes = require("./Routes/CategoryRoutes");
 const cartRoutes = require('./Routes/CartRoutes');
 const favoriteRoutes = require('./Routes/FavoriteRoutes');
-const paymentRoutes = require('./Routes/PaymentRoutes');
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
@@ -38,7 +37,6 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/favorites', favoriteRoutes);
-app.use('/api/payment', paymentRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

@@ -20,12 +20,16 @@ import {
   AddShoppingCartOutlined as AddShoppingCartIcon,
 } from '@mui/icons-material';
 import getImageUrl from '../utils/getImageUrl';
+import { useAnimation } from '../context/AnimationContext';
+import { useTranslation } from 'react-i18next';
 
 const Product = ({ product }) => {
-  const { addToCart } = useCart();
+  const { t } = useTranslation();
+  const { addToCart, cartItems } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { startAnimation } = useAnimation();
   const placeholderImage = '/images/sample.jpg';
   const productImage = product.photos && product.photos.length > 0 ? product.photos[0] : placeholderImage;
 
@@ -36,9 +40,11 @@ const Product = ({ product }) => {
       navigate('/login');
       return;
     }
+    const cardElement = e.currentTarget.closest('.MuiCard-root');
     if (isFavorite(product._id)) {
       removeFromFavorites(product._id);
     } else {
+      startAnimation(cardElement, 'favorite-icon', getImageUrl(productImage));
       addToFavorites(product);
     }
   };
@@ -50,23 +56,26 @@ const Product = ({ product }) => {
       navigate('/login');
       return;
     }
+    const cardElement = e.currentTarget.closest('.MuiCard-root');
+    startAnimation(cardElement, 'cart-icon', getImageUrl(productImage));
     addToCart(product);
   };
 
   return (
     <Card
       sx={{
-        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         textDecoration: 'none',
         color: 'inherit',
         borderRadius: 3,
+        height: '100%', // Ensure card fills the box
       }}
       component={Link}
       to={`/product/${product._id}`}
+      className="product-card"
     >
-      <Box sx={{ position: 'relative', pt: '100%' }}>
+      <Box sx={{ position: 'relative', width: '100%', paddingTop: '100%' }}>
         <CardMedia
           component="img"
           sx={{
@@ -81,10 +90,10 @@ const Product = ({ product }) => {
           alt={product.name}
         />
       </Box>
-      <CardContent sx={{ flexGrow: 1, p: 2 }}>
+      <CardContent sx={{ flexGrow: 1, p: { xs: 1, sm: 2 } }}>
         <Typography
           gutterBottom
-          variant="body1"
+          variant="body2"
           component="div"
           sx={{
             fontWeight: 600,
@@ -95,20 +104,20 @@ const Product = ({ product }) => {
         >
           {product.name}
         </Typography>
-        <Rating value={product.rating} text={`${product.numReviews} reviews`} />
-        <Typography variant="h6" color="text.primary" sx={{ mt: 1, fontWeight: 'bold' }}>
+        <Rating value={product.rating} text={`${product.numReviews} ${t('reviews')}`} />
+        <Typography variant="h6" color="text.primary" sx={{ mt: 1, fontWeight: 'bold', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           ${product.price}
         </Typography>
       </CardContent>
-      <CardActions sx={{ justifyContent: 'space-between', p: 1, mt: 'auto' }}>
-        <Tooltip title="Add to Cart" placement="top">
-          <IconButton onClick={handleAddToCartClick} color="primary">
-            <AddShoppingCartIcon />
+      <CardActions sx={{ justifyContent: 'space-between', p: { xs: 0, sm: 1 }, mt: 'auto' }}>
+        <Tooltip title={t('add_to_cart')} placement="top">
+          <IconButton onClick={handleAddToCartClick} color="primary" sx={{ p: { xs: 1 } }}>
+            <AddShoppingCartIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title={isFavorite(product._id) ? 'Remove from Favorites' : 'Add to Favorites'} placement="top">
-          <IconButton onClick={handleFavoriteClick} color="primary">
-            {isFavorite(product._id) ? <Favorite sx={{ color: 'red' }} /> : <FavoriteBorder />}
+        <Tooltip title={isFavorite(product._id) ? t('remove_from_favorites') : t('add_to_favorites')} placement="top">
+          <IconButton onClick={handleFavoriteClick} color="primary" sx={{ p: { xs: 1 } }}>
+            {isFavorite(product._id) ? <Favorite sx={{ color: 'red' }} fontSize="small" /> : <FavoriteBorder fontSize="small" />}
           </IconButton>
         </Tooltip>
       </CardActions>

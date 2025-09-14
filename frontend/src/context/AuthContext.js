@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import api from '../api'; // Use the centralized api instance
+import api from '../api';
 
 const AuthContext = createContext();
 
@@ -10,59 +10,48 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadUserFromStorage = () => {
-      const storedUser = localStorage.getItem('user');
+    const loadUser = async () => {
       const storedToken = localStorage.getItem('token');
-      
-      if (storedUser && storedToken) {
+      if (storedToken) {
         try {
-          setUser(JSON.parse(storedUser));
-          // The token is already set in the api instance by default
+          // The interceptor in api.js will add the token to the header.
+          const { data } = await api.get('/users/profile');
+          setUser(data);
         } catch (error) {
-          console.error("Failed to parse user from localStorage", error);
-          setUser(null);
-          localStorage.clear();
+          // The interceptor will handle 401 errors.
+          // We only need to log other potential errors.
+          console.error("Failed to fetch user profile:", error);
         }
       }
       setLoading(false);
     };
 
-    loadUserFromStorage();
+    loadUser();
   }, []);
 
   const login = async (email, password) => {
-    try {
-      const { data } = await api.post('/users/login', { email, password });
-
-      if (data.user && data.token) {
-        setUser(data.user);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        return data.user;
-      }
-    } catch (error) {
-      localStorage.clear();
-      setUser(null);
-      throw error;
+    const { data } = await api.post('/users/login', { email, password });
+    if (data.user && data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setUser(data.user);
+      return data.user;
     }
   };
 
-  const logout = async () => {
-    try {
-      // Optional: Inform the backend about logout
-      await api.post('/users/logout');
-    } catch (error) {
-      console.error("Logout failed on backend, clearing session locally.", error);
-    } finally {
-      // Clear user state and local storage regardless of backend result
-      setUser(null);
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      // The token is removed from the api instance via interceptors
-    }
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    // No need to remove header manually, interceptor won't find a token.
   };
 
-  const value = { user, setUser, login, logout, loading };
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
+  const value = { user, setUser: updateUser, login, logout, loading };
 
   return (
     <AuthContext.Provider value={value}>

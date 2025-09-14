@@ -30,6 +30,9 @@ export const FavoriteProvider = ({ children }) => {
 
   const addToFavorites = async (product) => {
     if (!user) return;
+
+    setFavoriteItems([...favoriteItems, product]);
+
     try {
       const { data } = await api.post(`/favorites`, {
         productId: product._id,
@@ -37,16 +40,23 @@ export const FavoriteProvider = ({ children }) => {
       setFavoriteItems(data);
     } catch (error) {
       console.error('Failed to add to favorites', error);
+      // Revert optimistic update on error
+      fetchFavorites();
     }
   };
 
   const removeFromFavorites = async (productId) => {
     if (!user) return;
+
+    setFavoriteItems(favoriteItems.filter((p) => p._id !== productId));
+
     try {
       const { data } = await api.delete(`/favorites/${productId}`);
       setFavoriteItems(data);
     } catch (error) {
       console.error('Failed to remove from favorites', error);
+      // Revert optimistic update on error
+      fetchFavorites();
     }
   };
 

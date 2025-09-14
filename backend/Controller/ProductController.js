@@ -42,7 +42,9 @@ exports.getProductById = async (req, res) => {
 // @route   POST /api/products
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, description, spec, photos, color, category, stock } = req.body;
+    const { name, price, description, spec, color, category, stock } = req.body;
+    const photos = req.files.map((file) => file.path.replace(/\\/g, "/"));
+
     const product = new Product({
       name,
       price,
@@ -53,10 +55,11 @@ exports.createProduct = async (req, res) => {
       category,
       stock,
     });
+
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (err) {
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -64,7 +67,7 @@ exports.createProduct = async (req, res) => {
 // @route   PUT /api/products/:id
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, price, description, spec, photos, color, category, stock } = req.body;
+    const { name, price, description, spec, color, category, stock } = req.body;
     const product = await Product.findById(req.params.id);
 
     if (product) {
@@ -72,18 +75,21 @@ exports.updateProduct = async (req, res) => {
       product.price = price;
       product.description = description;
       product.spec = spec;
-      product.photos = photos;
       product.color = color;
       product.category = category;
       product.stock = stock;
 
+      if (req.files && req.files.length > 0) {
+        product.photos = req.files.map((file) => file.path.replace(/\\/g, "/"));
+      }
+
       const updatedProduct = await product.save();
       res.json(updatedProduct);
     } else {
-      res.status(404).json({ message: 'Product not found' });
+      res.status(404).json({ message: "Product not found" });
     }
   } catch (err) {
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -100,5 +106,34 @@ exports.deleteProduct = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Search products
+// @route   GET /api/products/search
+exports.searchProducts = async (req, res) => {
+  try {
+    const { keyword, category } = req.query;
+    const query = {};
+
+    if (keyword) {
+      query.$or = [
+        { name: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+        { spec: { $regex: keyword, $options: "i" } },
+      ];
+    }
+
+    if (category) {
+      const categoryObj = await Category.findOne({ name: { $regex: `^${category}$`, $options: 'i' } });
+      if (categoryObj) {
+        query.category = categoryObj._id;
+      }
+    }
+
+    const products = await Product.find(query).populate("category");
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
   }
 };

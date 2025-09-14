@@ -30,6 +30,19 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (product, qty = 1) => {
     if (!user) return;
+
+    const existItem = cartItems.find((x) => x.product._id === product._id);
+
+    if (existItem) {
+      setCartItems(
+        cartItems.map((x) =>
+          x.product._id === product._id ? { ...x, qty: x.qty + qty } : x
+        )
+      );
+    } else {
+      setCartItems([...cartItems, { product, qty }]);
+    }
+
     try {
       const { data } = await api.post(`/cart`, {
         productId: product._id,
@@ -38,27 +51,54 @@ export const CartProvider = ({ children }) => {
       setCartItems(data);
     } catch (error) {
       console.error('Failed to add to cart', error);
+      // Revert optimistic update on error
+      fetchCart();
     }
   };
 
   const removeFromCart = async (productId) => {
     if (!user) return;
+    
+    setCartItems(cartItems.filter((x) => x.product._id !== productId));
+
     try {
       const { data } = await api.delete(`/cart/${productId}`);
       setCartItems(data);
     } catch (error) {
       console.error('Failed to remove from cart', error);
+      // Revert optimistic update on error
+      fetchCart();
+    }
+  };
+
+  const updateCartQty = async (productId, qty) => {
+    if (!user) return;
+
+    setCartItems(
+      cartItems.map((x) =>
+        x.product._id === productId ? { ...x, qty } : x
+      )
+    );
+
+    try {
+      const { data } = await api.post(`/cart`, {
+        productId,
+        qty,
+      });
+      setCartItems(data);
+    } catch (error) {
+      console.error('Failed to update cart quantity', error);
+      // Revert optimistic update on error
+      fetchCart();
     }
   };
 
   const clearCart = () => {
-    // This would need a backend implementation if you want to clear the entire cart
-    // For now, it just clears the local state
     setCartItems([]);
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, loading }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, updateCartQty, loading }}>
       {children}
     </CartContext.Provider>
   );

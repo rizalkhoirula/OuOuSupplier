@@ -8,7 +8,7 @@ const protect = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = { userId: decoded.userId };
+      req.user = await User.findById(decoded.userId).select('-password');
       next();
     } catch (error) {
       res.status(401).json({ message: 'Not authorized, token failed' });
@@ -21,8 +21,7 @@ const protect = async (req, res, next) => {
 };
 
 const admin = async (req, res, next) => {
-    const user = await User.findById(req.user.userId);
-    if (user && user.role === 'admin') {
+    if (req.user && req.user.role === 'admin') {
         next();
     } else {
         res.status(401).json({ message: 'Not authorized as an admin' });

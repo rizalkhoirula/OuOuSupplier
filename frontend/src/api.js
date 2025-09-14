@@ -26,8 +26,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // The component or context that made the call should handle the error.
-    // For example, by catching the error and redirecting the user.
+    if (error.response && error.response.status === 401) {
+      // If we get a 401, the token is invalid.
+      // Clear local storage and redirect to login.
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      // Use window.location to redirect outside of React Router context
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );

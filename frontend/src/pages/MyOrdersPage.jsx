@@ -1,144 +1,84 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   Container,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Collapse,
   Box,
-  Chip,
-  Alert,
-  CircularProgress,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
-  List,
   Grid,
-  Divider,
-} from "@mui/material";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import { Link } from "react-router-dom";
-import api from "../api";
-import getImageUrl from "../utils/getImageUrl";
-
-const OrderRow = ({ order }) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <>
-      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
-        <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-          </IconButton>
-        </TableCell>
-        <TableCell component="th" scope="row">
-          {order._id}
-        </TableCell>
-        <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
-        <TableCell align="right">${order.totalPrice.toFixed(2)}</TableCell>
-        <TableCell align="center">
-          <Chip
-            label={order.isPaid ? "Paid" : "Not Paid"}
-            color={order.isPaid ? "success" : "error"}
-            size="small"
-          />
-        </TableCell>
-        <TableCell align="center">
-          <Chip
-            label={order.isDelivered ? "Delivered" : "Processing"}
-            color={order.isDelivered ? "success" : "info"}
-            size="small"
-          />
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1, p: 2, backgroundColor: "#fafafa", borderRadius: 2 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Order Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Shipping Address</Typography>
-                  <Typography>{order.shippingAddress.fullName}</Typography>
-                  <Typography>{order.shippingAddress.address}</Typography>
-                  <Typography>
-                    {order.shippingAddress.city}, {order.shippingAddress.postalCode}
-                  </Typography>
-                  <Typography>{order.shippingAddress.country}</Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Payment Method</Typography>
-                  <Typography>{order.paymentMethod}</Typography>
-                </Grid>
-              </Grid>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Items</Typography>
-              <List>
-                {order.orderItems.map((item) => (
-                  <ListItem key={item.product}>
-                    <ListItemAvatar>
-                      <Avatar
-                        variant="rounded"
-                        src={getImageUrl(item.image)}
-                        alt={item.name}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={<Link to={`/product/${item.product}`}>{item.name}</Link>}
-                      secondary={`Qty: ${item.qty}`}
-                    />
-                    <Typography>
-                      ${(item.qty * item.price).toFixed(2)}
-                    </Typography>
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </>
-  );
-};
+  Card,
+  CardContent,
+  CardMedia,
+  Button,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
+import useFetch from '../hooks/useFetch';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import getImageUrl from '../utils/getImageUrl';
+import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const MyOrdersPage = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user } = useAuth();
+  const { data: orders, loading, error } = useFetch(`/orders/myorders`);
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const { data } = await api.get("/orders/myorders");
-        setOrders(data);
-      } catch (err) {
-        setError("Failed to fetch orders. Please try again later.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+  const handleBuyAgain = async (orderItems) => {
+    try {
+      const productPromises = orderItems.map(item =>
+        axios.get(`${process.env.REACT_APP_API_URL}/products/${item.product}`)
+      );
+      const productResponses = await Promise.all(productPromises);
+      const products = productResponses.map(res => res.data);
+
+      products.forEach((product, index) => {
+        const orderItem = orderItems[index];
+        if (product.stock > 0) {
+          addToCart(product, orderItem.qty);
+        }
+      });
+
+      navigate('/cart');
+    } catch (err) {
+      console.error("Failed to buy again", err);
+      // You might want to show an error to the user
+    }
+  };
+
+  const getOrderStatus = (order) => {
+    const statusStyles = {
+      mt: 1,
+      fontSize: { xs: '0.75rem', sm: '0.875rem' }
     };
-    fetchOrders();
-  }, []);
+
+    if (order.isDelivered) {
+      return (
+        <Typography variant="body2" color="success.main" sx={statusStyles}>
+          {t('delivered_on')} {new Date(order.deliveredAt).toLocaleDateString()}
+        </Typography>
+      );
+    }
+    if (order.isPaid) {
+      return (
+        <Typography variant="body2" color="primary.main" sx={statusStyles}>
+          {t('processing')}
+        </Typography>
+      );
+    }
+    return (
+      <Typography variant="body2" color="error.main" sx={statusStyles}>
+        {t('awaiting_payment')}
+      </Typography>
+    );
+  };
 
   return (
-    <Container sx={{ py: 5 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold", mb: 4 }}>
-        My Orders
+    <Box sx={{ py: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2, md: 4 } }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ fontSize: { xs: '1.25rem', sm: '2rem' } }}>
+        {t('my_orders')}
       </Typography>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
@@ -146,32 +86,91 @@ const MyOrdersPage = () => {
         </Box>
       ) : error ? (
         <Alert severity="error">{error}</Alert>
-      ) : orders.length === 0 ? (
-        <Alert severity="info">
-          You have no orders yet. <Link to="/">Start Shopping!</Link>
-        </Alert>
+      ) : !orders || orders.length === 0 ? (
+        <Alert severity="info">{t('you_have_no_orders_yet')}</Alert>
       ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-          <Table aria-label="collapsible table">
-            <TableHead>
-              <TableRow>
-                <TableCell />
-                <TableCell sx={{ fontWeight: "bold" }}>Order ID</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Date</TableCell>
-                <TableCell align="right" sx={{ fontWeight: "bold" }}>Total</TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold" }}>Paid</TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold" }}>Delivered</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {orders.map((order) => (
-                <OrderRow key={order._id} order={order} />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 2, sm: 3 } }}>
+          {orders.map((order) => (
+            <Card key={order._id} sx={{ display: 'flex', width: '100%' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  p: { xs: 1, sm: 2 },
+                  gap: { xs: 1, sm: 2 },
+                  width: '100%',
+                  alignItems: 'center',
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  sx={{
+                    width: { xs: 80, sm: 120 },
+                    height: { xs: 80, sm: 120 },
+                    objectFit: 'cover',
+                    borderRadius: 1,
+                    flexShrink: 0,
+                  }}
+                  image={getImageUrl(order.orderItems[0].image)}
+                  alt={order.orderItems[0].name}
+                />
+                <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                  <Typography 
+                    variant="h6" 
+                    component="div" 
+                    sx={{ 
+                      fontSize: { xs: '0.875rem', sm: '1.1rem' }, 
+                      fontWeight: 'bold',
+                      whiteSpace: 'normal',
+                    }}
+                  >
+                    {order.orderItems[0].name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' }, mt: 0.5 }}>
+                    {t('ordered_on')} {new Date(order.createdAt).toLocaleDateString()}
+                  </Typography>
+                  {order.orderItems.length > 1 && (
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
+                      {t('more_items', { count: order.orderItems.length - 1 })}
+                    </Typography>
+                  )}
+                  {getOrderStatus(order)}
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minWidth: { xs: '100px', sm: '150px' },
+                    gap: 2,
+                  }}
+                >
+                  <Typography variant="h6" component="div" sx={{ fontSize: { xs: '0.875rem', sm: '1.25rem' } }}>
+                    ${order.totalPrice.toFixed(2)}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
+                    <Button
+                      component={RouterLink}
+                      to={`/order/${order._id}`}
+                      variant="contained"
+                      size="small"
+                    >
+                      {t('details')}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleBuyAgain(order.orderItems)}
+                    >
+                      {t('buy_again')}
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            </Card>
+          ))}
+        </Box>
       )}
-    </Container>
+    </Box>
   );
 };
 

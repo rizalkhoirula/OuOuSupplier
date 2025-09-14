@@ -4,7 +4,7 @@ const User = require('../Models/User');
 // @route   GET /api/favorites
 exports.getFavorites = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).populate('favorites');
+    const user = await User.findById(req.user._id).populate('favorites');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -19,7 +19,7 @@ exports.getFavorites = async (req, res) => {
 exports.addToFavorites = async (req, res) => {
   const { productId } = req.body;
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -41,7 +41,7 @@ exports.addToFavorites = async (req, res) => {
 exports.removeFromFavorites = async (req, res) => {
   const { productId } = req.params;
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

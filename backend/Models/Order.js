@@ -31,10 +31,22 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
     paymentResult: {
-      id: { type: String },
-      status: { type: String },
-      update_time: { type: String },
-      email_address: { type: String },
+      customerName: { type: String },
+      bankName: { type: String },
+      bankAccount: { type: String },
+      transactionId: { type: String },
+      amount: { type: Number },
+      proofOfPayment: { type: String },
+    },
+    paymentStatus: {
+      type: String,
+      required: true,
+      default: 'pending',
+    },
+    itemsPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
     },
     taxPrice: {
       type: Number,

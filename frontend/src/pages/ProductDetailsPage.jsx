@@ -22,11 +22,13 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import getImageUrl from "../utils/getImageUrl";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -48,7 +50,7 @@ const ProductDetailsPage = () => {
         const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/products/${id}`);
         setProduct(data);
       } catch (err) {
-        setError("Product not found.");
+        setError(t("product_not_found"));
       }
     };
 
@@ -68,7 +70,7 @@ const ProductDetailsPage = () => {
     };
 
     fetchAll();
-  }, [id]);
+  }, [id, t]);
 
   const handleAddToCart = () => {
     if (product) {
@@ -97,7 +99,7 @@ const ProductDetailsPage = () => {
       setRating(0);
       setComment("");
     } catch (err) {
-      setSubmitError(err.response?.data?.message || "An error occurred.");
+      setSubmitError(err.response?.data?.message || t("error_submitting_review"));
     }
   };
 
@@ -118,13 +120,13 @@ const ProductDetailsPage = () => {
   }
 
   if (!product) {
-    return <Typography align="center">Product not found</Typography>;
+    return <Typography align="center">{t("product_not_found")}</Typography>;
   }
 
   return (
     <Box>
       <Button component={RouterLink} to="/" variant="outlined" sx={{ mb: 3 }}>
-        Go Back
+        {t("go_back")}
       </Button>
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
@@ -195,7 +197,7 @@ const ProductDetailsPage = () => {
               </Typography>
               <Rating
                 value={product.rating}
-                text={`${product.numReviews} reviews`}
+                text={`${product.numReviews} ${t("reviews")}`}
               />
               <Divider sx={{ my: 2 }} />
               <Typography variant="h5" color="primary" sx={{ my: 2 }}>
@@ -205,7 +207,7 @@ const ProductDetailsPage = () => {
                 variant="body1"
                 color={product.stock > 0 ? "success.main" : "error.main"}
               >
-                {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                {product.stock > 0 ? t("in_stock") : t("out_of_stock")}
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Typography variant="body2" color="text.secondary" paragraph>
@@ -214,18 +216,18 @@ const ProductDetailsPage = () => {
               <List dense>
                 <ListItem>
                   <ListItemText
-                    primary="Category"
+                    primary={t("category")}
                     secondary={product.category.name}
                   />
                 </ListItem>
                 <ListItem>
                   <ListItemText
-                    primary="Specifications"
+                    primary={t("specifications")}
                     secondary={product.spec}
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Color" secondary={product.color} />
+                  <ListItemText primary={t("color")} secondary={product.color} />
                 </ListItem>
               </List>
               <Box sx={{ display: "flex", alignItems: "center", mt: 3 }}>
@@ -255,7 +257,7 @@ const ProductDetailsPage = () => {
                 onClick={handleAddToCart}
                 sx={{ mt: 2 }}
               >
-                Add To Cart
+                {t("add_to_cart")}
               </Button>
             </CardContent>
           </Card>
@@ -264,9 +266,9 @@ const ProductDetailsPage = () => {
 
       <Box sx={{ mt: 5 }}>
         <Typography variant="h5" gutterBottom>
-          Reviews
+          {t("reviews")}
         </Typography>
-        {reviews.length === 0 && <Alert severity="info">No Reviews</Alert>}
+        {reviews.length === 0 && <Alert severity="info">{t("no_reviews")}</Alert>}
         <List>
           {reviews.map((review) => (
             <ListItem key={review._id} alignItems="flex-start">
@@ -293,16 +295,16 @@ const ProductDetailsPage = () => {
 
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" gutterBottom>
-            Write a Customer Review
+            {t("write_a_customer_review")}
           </Typography>
           {user ? (
             <form onSubmit={handleReviewSubmit}>
               {submitError && <Alert severity="error">{submitError}</Alert>}
               {submitSuccess && (
-                <Alert severity="success">Review submitted successfully!</Alert>
+                <Alert severity="success">{t("review_submitted_successfully")}</Alert>
               )}
               <Box sx={{ my: 2 }}>
-                <Typography component="legend">Rating</Typography>
+                <Typography component="legend">{t("rating")}</Typography>
                 <Rating
                   name="simple-controlled"
                   value={rating}
@@ -312,7 +314,7 @@ const ProductDetailsPage = () => {
                 />
               </Box>
               <TextField
-                label="Comment"
+                label={t("comment")}
                 multiline
                 rows={4}
                 fullWidth
@@ -321,12 +323,12 @@ const ProductDetailsPage = () => {
                 sx={{ mb: 2 }}
               />
               <Button type="submit" variant="contained">
-                Submit
+                {t("submit")}
               </Button>
             </form>
           ) : (
             <Alert severity="info">
-              Please <RouterLink to="/login">sign in</RouterLink> to write a review.
+              {t("please_sign_in_to_write_a_review")}
             </Alert>
           )}
         </Box>

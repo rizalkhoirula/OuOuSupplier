@@ -4,6 +4,7 @@ import { CartProvider } from './context/CartContext';
 import { FavoriteProvider } from './context/FavoriteContext';
 import { AuthProvider } from './context/AuthContext';
 import AppRoutes from './AppRoutes';
+import ScrollToTop from './components/ScrollToTop';
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
       <CartProvider>
         <FavoriteProvider>
           <Router>
+            <ScrollToTop />
             <AppRoutes />
           </Router>
         </FavoriteProvider>

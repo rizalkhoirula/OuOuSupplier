@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import CategoryPage from './pages/CategoryPage';
 import CartPage from './pages/CartPage';
@@ -24,10 +25,14 @@ import CategoryManagementPage from './pages/admin/CategoryManagementPage';
 import ReviewManagementPage from './pages/admin/ReviewManagementPage';
 import ReportsPage from './pages/admin/ReportsPage';
 import SettingsPage from './pages/admin/SettingsPage';
-import CheckoutPage from './pages/CheckoutPage';
 import MyOrdersPage from './pages/MyOrdersPage';
+import MyOrderDetailPage from './pages/MyOrderDetailPage'; // Import the new page
 import ReceiptPage from './pages/ReceiptPage';
-import PaymentStatusPage from './pages/PaymentStatusPage';
+
+import CheckoutPage from './pages/CheckoutPage';
+import PaymentPage from './pages/PaymentPage';
+
+import SearchPage from './pages/SearchPage';
 
 // Main layout for public-facing pages
 const MainLayout = ({ children }) => (
@@ -58,8 +63,10 @@ const AppRoutes = () => {
       {/* Public Routes */}
       <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
       <Route path="/products" element={<MainLayout><ProductPage /></MainLayout>} />
+      <Route path="/search" element={<MainLayout><SearchPage /></MainLayout>} />
       <Route path="/product/:id" element={<MainLayout><ProductDetailsPage /></MainLayout>} />
       <Route path="/login" element={<MainLayout><LoginPage /></MainLayout>} />
+      <Route path="/register" element={<MainLayout><RegisterPage /></MainLayout>} />
       <Route path="/category/:categoryName" element={<MainLayout><CategoryPage /></MainLayout>} />
       <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
       <Route path="/favorites" element={<MainLayout><FavoritesPage /></MainLayout>} />
@@ -67,10 +74,12 @@ const AppRoutes = () => {
       {/* Protected User Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
-        <Route path="/checkout" element={<MainLayout><CheckoutPage /></MainLayout>} />
         <Route path="/myorders" element={<MainLayout><MyOrdersPage /></MainLayout>} />
+        <Route path="/order/:id" element={<MainLayout><MyOrderDetailPage /></MainLayout>} />
         <Route path="/order/:orderId/receipt" element={<MainLayout><ReceiptPage /></MainLayout>} />
-        <Route path="/payment-status" element={<MainLayout><PaymentStatusPage /></MainLayout>} />
+        
+        <Route path="/checkout" element={<MainLayout><CheckoutPage /></MainLayout>} />
+        <Route path="/payment/:orderId" element={<MainLayout><PaymentPage /></MainLayout>} />
       </Route>
 
       {/* Admin Routes */}

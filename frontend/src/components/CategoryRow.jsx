@@ -29,13 +29,35 @@ const CategoryRow = ({ category }) => {
           See All
         </Button>
       </Box>
-      <Grid container spacing={3}>
-        {products.slice(0, 4).map((product) => (
-          <Grid item key={product._id} xs={12} sm={6} md={3}>
-            <Product product={product} />
-          </Grid>
-        ))}
-      </Grid>
+      <Box
+        sx={{
+          display: "flex",
+          overflowX: "auto",
+          gap: 2,
+          py: 2,
+          scrollBehavior: "smooth",
+          "&::-webkit-scrollbar": {
+            height: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: "4px",
+          },
+        }}
+      >
+        {products &&
+          products.map((product) => (
+            <Box
+              key={product._id}
+              sx={{
+                width: { xs: "150px", sm: "180px", md: "200px" },
+                flex: "0 0 auto",
+              }}
+            >
+              <Product product={product} />
+            </Box>
+          ))}
+      </Box>
     </Box>
   );
 };

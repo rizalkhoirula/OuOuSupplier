@@ -4,7 +4,7 @@ const User = require('../Models/User');
 // @route   GET /api/cart
 exports.getCart = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).populate({
+    const user = await User.findById(req.user._id).populate({
       path: 'cart.product',
       populate: {
         path: 'category',
@@ -25,7 +25,7 @@ exports.getCart = async (req, res) => {
 exports.addToCart = async (req, res) => {
   const { productId, qty } = req.body;
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -59,7 +59,7 @@ exports.addToCart = async (req, res) => {
 exports.removeFromCart = async (req, res) => {
   const { productId } = req.params;
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

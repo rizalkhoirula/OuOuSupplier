@@ -2,8 +2,10 @@ import React from 'react';
 import { Container, Grid, Typography, Box, CircularProgress } from '@mui/material';
 import Product from '../components/Product';
 import useFetch from '../hooks/useFetch';
+import { useTranslation } from 'react-i18next';
 
 const ProductPage = () => {
+  const { t } = useTranslation();
   const { data: products, loading, error } = useFetch('/products');
 
   if (loading) {
@@ -15,13 +17,13 @@ const ProductPage = () => {
   }
 
   if (error) {
-    return <Typography color="error" align="center">{error}</Typography>;
+    return <Typography color="error" align="center">{t('error_fetching_data')}</Typography>;
   }
 
   return (
     <Container>
       <Typography variant="h4" component="h1" gutterBottom>
-        All Products
+        {t('all_products')}
       </Typography>
       <Grid container spacing={4}>
         {products.map((product) => (

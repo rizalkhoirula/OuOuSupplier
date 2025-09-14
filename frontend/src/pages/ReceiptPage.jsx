@@ -9,14 +9,25 @@ import {
   Divider,
   Button,
   List,
+  Chip,
   ListItem,
   ListItemText,
   ListItemAvatar,
   Avatar,
   Alert,
   Icon,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
-import { Download, CheckCircleOutline, ShoppingBag } from "@mui/icons-material";
+import {
+  Download,
+  CheckCircleOutline,
+  ShoppingBagOutlined,
+} from "@mui/icons-material";
 import getImageUrl from "../utils/getImageUrl";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -24,7 +35,7 @@ import html2canvas from "html2canvas";
 const ReceiptPage = () => {
   const { state } = useLocation();
   const { orderId } = useParams();
-  const { order } = state || {};
+  const { order, paymentDetails } = state || {};
   const receiptRef = useRef(null);
 
   const handleDownloadPdf = () => {
@@ -34,11 +45,12 @@ const ReceiptPage = () => {
       return;
     }
 
-    // Use html2canvas to capture the receipt component
-    html2canvas(input, { scale: 2 }).then((canvas) => {
+    html2canvas(input, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    }).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
-      
-      // Create a PDF document
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -46,33 +58,22 @@ const ReceiptPage = () => {
       });
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
       const canvasWidth = canvas.width;
       const canvasHeight = canvas.height;
       const ratio = canvasWidth / canvasHeight;
-      
-      let imgWidth = pdfWidth - 20; // with some margin
-      let imgHeight = imgWidth / ratio;
+      const imgWidth = pdfWidth;
+      const imgHeight = imgWidth / ratio;
 
-      // if the image is too high, scale it down to fit the page
-      if (imgHeight > pdfHeight - 20) {
-        imgHeight = pdfHeight - 20;
-        imgWidth = imgHeight * ratio;
-      }
-
-      const x = (pdfWidth - imgWidth) / 2;
-      const y = 10; // top margin
-
-      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
-      pdf.save(`Receipt-Order-${orderId}.pdf`);
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save(`OuOu-Receipt-Order-${orderId}.pdf`);
     });
   };
 
   if (!order) {
     return (
       <Container sx={{ py: 5, textAlign: "center" }}>
-        <Alert severity="error" sx={{ mb: 3 }}>
-          Order not found. Please check your order history.
+        <Alert severity="error" sx={{ mb: 3, justifyContent: "center" }}>
+          Order details not found. Please check your order history.
         </Alert>
         <Button component={Link} to="/myorders" variant="contained">
           Go to My Orders
@@ -82,25 +83,24 @@ const ReceiptPage = () => {
   }
 
   return (
-    <Container sx={{ py: 5 }}>
+    <Container sx={{ py: 5, fontFamily: "'Roboto', sans-serif" }}>
       <Paper
         sx={{
-          p: 4,
+          p: { xs: 2, sm: 4 },
           borderRadius: 3,
           mb: 4,
           textAlign: "center",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+          backgroundColor: "primary.main",
+          color: "#fff",
         }}
       >
-        <Icon sx={{ fontSize: 60, color: "success.main" }}>
-          <CheckCircleOutline fontSize="inherit" />
-        </Icon>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold", mt: 2 }}>
-          Thank You for Your Order!
+        <CheckCircleOutline sx={{ fontSize: 60, mb: 1 }} />
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+          Payment Submitted Successfully
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary">
-          Your order has been placed successfully. You can download your receipt
-          below.
+        <Typography variant="body1">
+          Your order is now being processed. You can download a copy of your
+          receipt below.
         </Typography>
       </Paper>
 
@@ -109,46 +109,59 @@ const ReceiptPage = () => {
           variant="contained"
           onClick={handleDownloadPdf}
           startIcon={<Download />}
-          sx={{ fontWeight: "bold" }}
+          sx={{ fontWeight: "bold", borderRadius: 2 }}
         >
-          Download PDF
+          Download Receipt
         </Button>
       </Box>
 
       {/* The Receipt Component to be captured */}
-      <Paper sx={{ borderRadius: 3, overflow: "hidden" }}>
-        <div ref={receiptRef} style={{ padding: "2rem", background: "white" }}>
+      <Paper
+        sx={{
+          borderRadius: 2,
+          overflow: "hidden",
+          border: "1px solid #eee",
+        }}
+      >
+        <div ref={receiptRef} style={{ padding: "2.5rem", background: "white" }}>
+          {/* Header */}
           <Box
             display="flex"
             justifyContent="space-between"
-            alignItems="center"
-            mb={3}
+            alignItems="flex-start"
+            mb={4}
           >
-            <Typography variant="h4" component="h1" sx={{ fontWeight: "bold" }}>
-              Receipt
+            <Box>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{ fontWeight: "bold", color: "#333" }}
+              >
+                OuOu Supplier
+              </Typography>
+              <Typography color="text.secondary">
+                123 Yangon City, Yangon Province, Myanmar
+              </Typography>
+              <Typography color="text.secondary">
+                contact@ouousupplier.com
+              </Typography>
+            </Box>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: "bold", color: "text.secondary" }}
+            >
+              RECEIPT
             </Typography>
-            <ShoppingBag sx={{ fontSize: 40, color: "primary.main" }} />
           </Box>
-          <Divider sx={{ mb: 3 }} />
-          <Grid container justifyContent="space-between" mb={3}>
-            <Grid item>
-              <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                Order ID
-              </Typography>
-              <Typography>#{orderId}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                Date
-              </Typography>
-              <Typography>
-                {new Date(order.createdAt).toLocaleDateString()}
-              </Typography>
-            </Grid>
-          </Grid>
+
+          {/* Order Info */}
           <Grid container justifyContent="space-between" mb={4}>
-            <Grid item>
-              <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+            <Grid item xs={12} sm={5}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ fontWeight: "bold" }}
+              >
                 Billed To
               </Typography>
               <Typography>{order.shippingAddress.fullName}</Typography>
@@ -158,56 +171,119 @@ const ReceiptPage = () => {
               </Typography>
               <Typography>{order.shippingAddress.country}</Typography>
             </Grid>
-          </Grid>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
-            Items Ordered
-          </Typography>
-          <List disablePadding>
-            {order.orderItems.map((item) => (
-              <ListItem key={item.product} disableGutters>
-                <ListItemAvatar>
-                  <Avatar
-                    variant="rounded"
-                    src={getImageUrl(item.image)}
-                    alt={item.name}
-                    sx={{ width: 56, height: 56 }}
-                  />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={item.name}
-                  secondary={`Quantity: ${item.qty}`}
+            <Grid item xs={12} sm={5} sx={{ textAlign: { sm: "right" } }}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ fontWeight: "bold" }}
+              >
+                Order Details
+              </Typography>
+              <Typography>
+                <strong>Order ID:</strong> #{orderId}
+              </Typography>
+              <Typography>
+                <strong>Date:</strong>{" "}
+                {new Date(order.createdAt).toLocaleDateString()}
+              </Typography>
+              <Box display="flex" justifyContent={{ sm: "flex-end" }} mt={0.5}>
+                <Chip
+                  label={order.paymentStatus || "Pending"}
+                  color={
+                    order.paymentStatus === "paid"
+                      ? "success"
+                      : order.paymentStatus === "processing"
+                      ? "info"
+                      : "warning"
+                  }
+                  size="small"
                 />
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  ${(item.qty * item.price).toFixed(2)}
-                </Typography>
-              </ListItem>
-            ))}
-          </List>
-          <Divider sx={{ my: 3 }} />
+              </Box>
+            </Grid>
+          </Grid>
+
+          {/* Items Table */}
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+            Order Summary
+          </Typography>
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+            sx={{ borderRadius: 2, mb: 4 }}
+          >
+            <Table>
+              <TableHead sx={{ backgroundColor: "#f9f9f9" }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: "bold" }}>Item</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                    Qty
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                    Price
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                    Total
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {order.orderItems.map((item) => (
+                  <TableRow key={item.product}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell align="center">{item.qty}</TableCell>
+                    <TableCell align="right">
+                      ${item.price.toFixed(2)}
+                    </TableCell>
+                    <TableCell align="right">
+                      ${(item.qty * item.price).toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Totals */}
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Box sx={{ width: "100%", maxWidth: 300 }}>
+            <Box sx={{ width: "100%", maxWidth: 280 }}>
               <Grid container justifyContent="space-between" sx={{ mb: 1 }}>
-                <Typography>Subtotal</Typography>
-                <Typography>${order.itemsPrice}</Typography>
+                <Typography color="text.secondary">Subtotal</Typography>
+                <Typography sx={{ fontWeight: 500 }}>
+                  ${order.itemsPrice.toFixed(2)}
+                </Typography>
               </Grid>
               <Grid container justifyContent="space-between" sx={{ mb: 1 }}>
-                <Typography>Shipping</Typography>
-                <Typography>${order.shippingPrice}</Typography>
+                <Typography color="text.secondary">Shipping</Typography>
+                <Typography sx={{ fontWeight: 500 }}>
+                  ${order.shippingPrice.toFixed(2)}
+                </Typography>
               </Grid>
               <Grid container justifyContent="space-between" sx={{ mb: 2 }}>
-                <Typography>Tax</Typography>
-                <Typography>${order.taxPrice}</Typography>
+                <Typography color="text.secondary">Tax</Typography>
+                <Typography sx={{ fontWeight: 500 }}>
+                  ${order.taxPrice.toFixed(2)}
+                </Typography>
               </Grid>
               <Divider sx={{ my: 2 }} />
               <Grid container justifyContent="space-between">
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  Total
+                  Grand Total
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  ${order.totalPrice}
+                  ${order.totalPrice.toFixed(2)}
                 </Typography>
               </Grid>
             </Box>
+          </Box>
+
+          {/* Footer */}
+          <Box sx={{ textAlign: "center", mt: 5, pt: 3, borderTop: "1px solid #eee" }}>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              Thank You For Your Purchase!
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              OuOu Supplier | www.ouousupplier.com
+            </Typography>
           </Box>
         </div>
       </Paper>
