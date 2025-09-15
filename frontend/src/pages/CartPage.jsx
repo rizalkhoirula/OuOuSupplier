@@ -61,7 +61,7 @@ const CartPage = () => {
           {t("subtotal")} ({totalItems} {t("items")})
         </Typography>
         <Typography sx={{ fontWeight: "medium" }}>
-          ${subtotal.toFixed(2)}
+          K {subtotal.toLocaleString('en-US')}
         </Typography>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
@@ -76,7 +76,7 @@ const CartPage = () => {
           {t("total")}
         </Typography>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          ${subtotal.toFixed(2)}
+          K {subtotal.toLocaleString('en-US')}
         </Typography>
       </Box>
       <Button
@@ -111,7 +111,7 @@ const CartPage = () => {
       <Box>
         <Typography color="text.secondary">{t("total")}</Typography>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          ${subtotal.toFixed(2)}
+          K {subtotal.toLocaleString('en-US')}
         </Typography>
       </Box>
       <Button
@@ -251,7 +251,7 @@ const CartPage = () => {
                         variant="subtitle1"
                         sx={{ fontWeight: "bold", fontSize: { xs: '0.875rem', sm: '1rem' } }}
                       >
-                        ${(item.product.price * item.qty).toFixed(2)}
+                        K {(item.product.price * item.qty).toLocaleString('en-US')}
                       </Typography>
                       <IconButton
                         aria-label="delete"

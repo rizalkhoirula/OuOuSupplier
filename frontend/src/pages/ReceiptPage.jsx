@@ -31,8 +31,10 @@ import {
 import getImageUrl from "../utils/getImageUrl";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useTranslation } from "react-i18next";
 
 const ReceiptPage = () => {
+  const { t } = useTranslation();
   const { state } = useLocation();
   const { orderId } = useParams();
   const { order, paymentDetails } = state || {};
@@ -73,10 +75,10 @@ const ReceiptPage = () => {
     return (
       <Container sx={{ py: 5, textAlign: "center" }}>
         <Alert severity="error" sx={{ mb: 3, justifyContent: "center" }}>
-          Order details not found. Please check your order history.
+          {t('order_details_not_found')}
         </Alert>
         <Button component={Link} to="/myorders" variant="contained">
-          Go to My Orders
+          {t('go_to_my_orders')}
         </Button>
       </Container>
     );
@@ -96,11 +98,10 @@ const ReceiptPage = () => {
       >
         <CheckCircleOutline sx={{ fontSize: 60, mb: 1 }} />
         <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
-          Payment Submitted Successfully
+          {t('payment_submitted_successfully')}
         </Typography>
         <Typography variant="body1">
-          Your order is now being processed. You can download a copy of your
-          receipt below.
+          {t('order_processing_message')}
         </Typography>
       </Paper>
 
@@ -111,7 +112,7 @@ const ReceiptPage = () => {
           startIcon={<Download />}
           sx={{ fontWeight: "bold", borderRadius: 2 }}
         >
-          Download Receipt
+          {t('download_receipt')}
         </Button>
       </Box>
 
@@ -150,7 +151,7 @@ const ReceiptPage = () => {
               variant="h5"
               sx={{ fontWeight: "bold", color: "text.secondary" }}
             >
-              RECEIPT
+              {t('receipt')}
             </Typography>
           </Box>
 
@@ -162,7 +163,7 @@ const ReceiptPage = () => {
                 gutterBottom
                 sx={{ fontWeight: "bold" }}
               >
-                Billed To
+                {t('billed_to')}
               </Typography>
               <Typography>{order.shippingAddress.fullName}</Typography>
               <Typography>{order.shippingAddress.address}</Typography>
@@ -177,18 +178,18 @@ const ReceiptPage = () => {
                 gutterBottom
                 sx={{ fontWeight: "bold" }}
               >
-                Order Details
+                {t('order_details')}
               </Typography>
               <Typography>
-                <strong>Order ID:</strong> #{orderId}
+                <strong>{t('order_id')}:</strong> #{orderId}
               </Typography>
               <Typography>
-                <strong>Date:</strong>{" "}
+                <strong>{t('date')}:</strong>{" "}
                 {new Date(order.createdAt).toLocaleDateString()}
               </Typography>
               <Box display="flex" justifyContent={{ sm: "flex-end" }} mt={0.5}>
                 <Chip
-                  label={order.paymentStatus || "Pending"}
+                  label={t(order.paymentStatus) || t('pending')}
                   color={
                     order.paymentStatus === "paid"
                       ? "success"
@@ -204,7 +205,7 @@ const ReceiptPage = () => {
 
           {/* Items Table */}
           <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
-            Order Summary
+            {t('order_summary')}
           </Typography>
           <TableContainer
             component={Paper}
@@ -214,15 +215,15 @@ const ReceiptPage = () => {
             <Table>
               <TableHead sx={{ backgroundColor: "#f9f9f9" }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Item</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>{t('item')}</TableCell>
                   <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                    Qty
+                    {t('qty')}
                   </TableCell>
                   <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                    Price
+                    {t('price')}
                   </TableCell>
                   <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                    Total
+                    {t('total')}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -247,19 +248,19 @@ const ReceiptPage = () => {
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Box sx={{ width: "100%", maxWidth: 280 }}>
               <Grid container justifyContent="space-between" sx={{ mb: 1 }}>
-                <Typography color="text.secondary">Subtotal</Typography>
+                <Typography color="text.secondary">{t('subtotal')}</Typography>
                 <Typography sx={{ fontWeight: 500 }}>
                   ${order.itemsPrice.toFixed(2)}
                 </Typography>
               </Grid>
               <Grid container justifyContent="space-between" sx={{ mb: 1 }}>
-                <Typography color="text.secondary">Shipping</Typography>
+                <Typography color="text.secondary">{t('shipping')}</Typography>
                 <Typography sx={{ fontWeight: 500 }}>
                   ${order.shippingPrice.toFixed(2)}
                 </Typography>
               </Grid>
               <Grid container justifyContent="space-between" sx={{ mb: 2 }}>
-                <Typography color="text.secondary">Tax</Typography>
+                <Typography color="text.secondary">{t('tax')}</Typography>
                 <Typography sx={{ fontWeight: 500 }}>
                   ${order.taxPrice.toFixed(2)}
                 </Typography>
@@ -267,7 +268,7 @@ const ReceiptPage = () => {
               <Divider sx={{ my: 2 }} />
               <Grid container justifyContent="space-between">
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  Grand Total
+                  {t('grand_total')}
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                   ${order.totalPrice.toFixed(2)}
@@ -279,7 +280,7 @@ const ReceiptPage = () => {
           {/* Footer */}
           <Box sx={{ textAlign: "center", mt: 5, pt: 3, borderTop: "1px solid #eee" }}>
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Thank You For Your Purchase!
+              {t('thank_you_for_your_purchase')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               OuOu Supplier | www.ouousupplier.com

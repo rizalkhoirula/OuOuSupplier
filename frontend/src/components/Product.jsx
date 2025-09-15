@@ -106,7 +106,7 @@ const Product = ({ product }) => {
         </Typography>
         <Rating value={product.rating} text={`${product.numReviews} ${t('reviews')}`} />
         <Typography variant="h6" color="text.primary" sx={{ mt: 1, fontWeight: 'bold', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-          ${product.price}
+          K {product.price.toLocaleString('en-US')}
         </Typography>
       </CardContent>
       <CardActions sx={{ justifyContent: 'space-between', p: { xs: 0, sm: 1 }, mt: 'auto' }}>

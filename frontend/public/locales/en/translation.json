@@ -123,5 +123,18 @@
   "not_paid": "Not Paid",
   "order_id": "Order ID",
   "shipping_fee": "Shipping Fee",
-  "tax": "Tax"
+  "tax": "Tax",
+  "order_details_not_found": "Order details not found. Please check your order history.",
+  "go_to_my_orders": "Go to My Orders",
+  "payment_submitted_successfully": "Payment Submitted Successfully",
+  "order_processing_message": "Your order is now being processed. You can download a copy of your receipt below.",
+  "download_receipt": "Download Receipt",
+  "receipt": "RECEIPT",
+  "billed_to": "Billed To",
+  "date": "Date",
+  "pending": "Pending",
+  "qty": "Qty",
+  "price": "Price",
+  "grand_total": "Grand Total",
+  "thank_you_for_your_purchase": "Thank You For Your Purchase!"
 }
